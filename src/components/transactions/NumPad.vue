@@ -1,6 +1,6 @@
 <script setup lang="ts">
     /**
-     * A custom numeric keypad with a calculator - the same layout as in 1Money:
+     * A custom numeric keypad with a calculator - the same layout as in any finance tracker:
      * a column of operators on the left, and backspace, date and a tall confirm button on the right.
      *
      * Custom rather than the system keyboard: it is always on screen, does not cover the top of the form
@@ -94,7 +94,7 @@
         font-size: 19px;
     }
 
-    /* The check key spans two rows - just like in 1Money. */
+    /* The check key spans two rows - just like in any finance tracker. */
     .key--submit {
         grid-column: 5;
         grid-row: 3 / span 2;

@@ -15,7 +15,7 @@
 
     /**
      * The summary screen: the period totals, the month-by-month trend, the expense breakdown
-     * and the latest transactions - what 1Money keeps on its Overview tab.
+     * and the latest transactions - what any finance tracker keeps on its Overview tab.
      */
     const emit = defineEmits<{ editTransaction: [id: string] }>();
 

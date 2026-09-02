@@ -9,7 +9,7 @@ export interface RecurrencePreset {
     interval: number;
 }
 
-/** The repeat options, in the same order as in 1Money. */
+/** The repeat options, in the same order as in any finance tracker. */
 export const RECURRENCE_PRESETS: RecurrencePreset[] = [
     { key: "daily-1", label: "Every day", period: "daily", interval: 1 },
     { key: "daily-2", label: "Every 2 days", period: "daily", interval: 2 },

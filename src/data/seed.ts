@@ -24,7 +24,7 @@ interface SeedGroup {
     children: string[];
 }
 
-/** The starter set of categories - roughly what 1Money starts with. Everything is editable in the Categories section. */
+/** The starter set of categories - roughly what any finance tracker starts with. Everything is editable in the Categories section. */
 const SEED_GROUPS: SeedGroup[] = [
     { name: "Groceries", icon: "🛒", kind: "expense", children: ["Supermarket", "Market", "Delivery"] },
     { name: "Cafes and restaurants", icon: "☕", kind: "expense", children: ["Coffee", "Lunch", "Bar"] },

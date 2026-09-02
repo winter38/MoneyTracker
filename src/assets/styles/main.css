@@ -116,7 +116,7 @@ body {
     color: var(--ft-transfer);
 }
 
-/* An emoji circle - the visual anchor of a category or an account, as in 1Money. */
+/* An emoji circle - the visual anchor of a category or an account, as in any finance tracker. */
 .ft-avatar {
     display: inline-flex;
     align-items: center;

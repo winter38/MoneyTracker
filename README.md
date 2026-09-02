@@ -50,7 +50,7 @@ src/
   views/                 Accounts, Categories, Transactions, Budget, Overview, Manage, Settings
 ```
 
-The sections mirror 1Money: **Accounts · Categories · Transactions · Budget · Overview**
+The sections mirror any finance tracker: **Accounts · Categories · Transactions · Budget · Overview**
 in the bottom navigation (a sidebar on desktop); "Manage" and "Settings" sit behind the
 header buttons.
 
@@ -64,7 +64,7 @@ only `utils/storage.ts` and its call sites change; the rest of the app talks to 
 **Categories.** Two levels: `CategoryGroup` (with icon and colour) and `Subcategory`.
 The `kind` field keeps the expense and income trees independent.
 
-**Quick add** (`components/transactions/QuickAddSheet.vue`) follows the 1Money screen:
+**Quick add** (`components/transactions/QuickAddSheet.vue`) follows the quick-add screen of any finance tracker:
 a two-colour header ("From account / To category") where tapping a half opens a picker
 (`PickerSheet.vue` — account list or category grid), a subcategory pill underneath, a
 large amount, a note field and a custom numeric keypad.

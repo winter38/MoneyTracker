@@ -8,7 +8,7 @@ import { useSettingsStore } from "@/stores/settings";
  * The current billing month - shared by every tab.
  *
  * A store rather than a composable: the period is picked once in the header and must persist
- * while moving between Categories, Budget and Overview, the way 1Money does it.
+ * while moving between Categories, Budget and Overview, the way any finance tracker does it.
  */
 export const usePeriodStore = defineStore("period", () => {
     const settings = useSettingsStore();

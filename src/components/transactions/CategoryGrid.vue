@@ -59,7 +59,7 @@
     function onGroupTap(id: string): void {
         const hasChildren = categories.childrenOf(id).length > 0;
         if (hasChildren) {
-            // As in 1Money: tapping a group expands its subcategories,
+            // As in any finance tracker: tapping a group expands its subcategories,
             // but the group itself already counts as selected.
             openGroupId.value = id;
             emit("select", id, undefined, false);

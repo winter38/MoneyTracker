@@ -7,7 +7,7 @@
 
     /**
      * A popup account or category picker - opened by tapping the colored header
-     * of the add screen, as in 1Money.
+     * of the add screen, as in any finance tracker.
      */
     const props = defineProps<{
         open: boolean;

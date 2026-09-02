@@ -10,7 +10,7 @@
     const accounts = useAccountsStore();
     const settings = useSettingsStore();
 
-    /** The sections, in the same order as in 1Money. */
+    /** The sections, in the same order as in any finance tracker. */
     const links = [
         { to: "/accounts", label: "Accounts", icon: "👛" },
         { to: "/categories", label: "Categories", icon: "◔" },

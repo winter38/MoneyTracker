@@ -13,7 +13,7 @@
     import { iconTint } from "@/utils/color";
 
     /**
-     * The Categories screen in the spirit of 1Money: the expense ring in the middle, the category
+     * The Categories screen in the spirit of any finance tracker: the expense ring in the middle, the category
      * icons around it, and a tap on a category opens the add form for it right away.
      */
     const emit = defineEmits<{ addToCategory: [groupId: string, kind: CategoryKind] }>();

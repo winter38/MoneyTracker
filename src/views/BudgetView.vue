@@ -13,7 +13,7 @@
 
     /**
      * Budget: the plan for the billing month per category group, plus the actuals from the transactions.
-     * The plan is the same for every month - that is how the basic 1Money budget behaves too.
+     * The plan is the same for every month - that is how the basic budget in any finance tracker behaves too.
      */
     const budgets = useBudgetsStore();
     const categories = useCategoriesStore();

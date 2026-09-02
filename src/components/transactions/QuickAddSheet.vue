@@ -541,7 +541,7 @@
         pointer-events: none;
     }
 
-    /* Two colored halves with icons that stick out - the recognisable 1Money header. */
+    /* Two colored halves with icons that stick out - the recognisable header of any finance tracker. */
     .head {
         position: relative;
         display: flex;

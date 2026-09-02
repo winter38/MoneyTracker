@@ -4,7 +4,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
  * Hash mode is a deliberate choice: the built `dist` then opens both from the file system
  * and from any static host, with no rewrite rules to configure.
  *
- * The section order follows 1Money: Accounts, Categories, Transactions, Budget, Overview,
+ * The section order follows any finance tracker: Accounts, Categories, Transactions, Budget, Overview,
  * while Manage and Settings live behind buttons in the header.
  */
 const router = createRouter({

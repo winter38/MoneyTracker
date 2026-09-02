@@ -7,7 +7,7 @@
 
     /**
      * The date and repeat sheet - opened with the calendar key on the keypad,
-     * as in 1Money: quick Yesterday/Today, the system calendar and a list of repeat options.
+     * as in any finance tracker: quick Yesterday/Today, the system calendar and a list of repeat options.
      */
     const props = defineProps<{
         open: boolean;
