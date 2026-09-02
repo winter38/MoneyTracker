@@ -1,0 +1,283 @@
+/**
+ * Глобальные стили и токены оформления.
+ * Переменные продублированы для тёмной темы — Element Plus включает её классом `dark` на <html>.
+ */
+
+:root {
+    --ft-page: #f4f5f7;
+    --ft-surface: #ffffff;
+    --ft-surface-muted: #f7f8fa;
+    --ft-border: rgba(17, 17, 17, 0.08);
+    --ft-text: #14161a;
+    --ft-text-secondary: #5c6270;
+    --ft-text-muted: #8a909e;
+    --ft-expense: #e34948;
+    --ft-income: #14a06a;
+    --ft-transfer: #2a78d6;
+    --ft-accent: #2a78d6;
+    --ft-radius: 14px;
+    --ft-radius-sm: 10px;
+    --ft-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 16px rgba(16, 24, 40, 0.06);
+    --ft-nav-height: 60px;
+    /* Минимальный размер кликабельного элемента — палец не попадает по мелочи. */
+    --ft-tap: 44px;
+}
+
+html.dark {
+    --ft-page: #0f1115;
+    --ft-surface: #181b21;
+    --ft-surface-muted: #1f232b;
+    --ft-border: rgba(255, 255, 255, 0.09);
+    --ft-text: #f2f4f8;
+    --ft-text-secondary: #a9b1c1;
+    --ft-text-muted: #79808f;
+    --ft-expense: #ef6b6a;
+    --ft-income: #34c98b;
+    --ft-transfer: #5598e7;
+    --ft-accent: #4a8fe8;
+    --ft-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    background: var(--ft-page);
+    color: var(--ft-text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+}
+
+#app {
+    min-height: 100vh;
+}
+
+/* ---------- Общие блоки ---------- */
+
+.ft-card {
+    background: var(--ft-surface);
+    border: 1px solid var(--ft-border);
+    border-radius: var(--ft-radius);
+    box-shadow: var(--ft-shadow);
+    padding: 16px;
+}
+
+.ft-card--flush {
+    padding: 0;
+    overflow: hidden;
+}
+
+.ft-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ft-text-muted);
+}
+
+.ft-muted {
+    color: var(--ft-text-muted);
+}
+
+.ft-amount {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ft-amount--expense {
+    color: var(--ft-expense);
+}
+
+.ft-amount--income {
+    color: var(--ft-income);
+}
+
+.ft-amount--transfer {
+    color: var(--ft-transfer);
+}
+
+/* Кружок с эмодзи — визуальный якорь категории или счёта, как в 1Money. */
+.ft-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border-radius: 50%;
+    font-size: 18px;
+    line-height: 1;
+    background: var(--ft-surface-muted);
+    user-select: none;
+}
+
+.ft-avatar--sm {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+    font-size: 15px;
+}
+
+.ft-empty {
+    padding: 28px 16px;
+    text-align: center;
+    color: var(--ft-text-muted);
+    font-size: 14px;
+}
+
+.ft-grid {
+    display: grid;
+    gap: 16px;
+}
+
+@media (min-width: 900px) {
+    .ft-grid--2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ft-grid--3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* ---------- Подгонка Element Plus под оформление приложения ---------- */
+
+.el-card,
+.el-dialog,
+.el-drawer {
+    --el-card-border-radius: var(--ft-radius);
+}
+
+.el-dialog {
+    border-radius: var(--ft-radius);
+}
+
+@media (max-width: 640px) {
+    .el-dialog {
+        width: calc(100vw - 24px) !important;
+        margin-top: 8vh !important;
+    }
+
+    .el-message-box {
+        width: calc(100vw - 32px) !important;
+    }
+}
+
+.el-overlay {
+    /* Модалки должны перекрывать нижнюю навигацию на телефоне. */
+    z-index: 2500;
+}
+
+/*
+ * На телефоне все элементы управления крупнее: Element Plus по умолчанию делает
+ * поля высотой 32px, по такому неудобно попадать пальцем.
+ */
+@media (max-width: 899px) {
+    .el-button {
+        min-height: var(--ft-tap);
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .el-button.is-link {
+        min-height: 36px;
+    }
+
+    .el-input__wrapper,
+    .el-select__wrapper,
+    .el-textarea__inner {
+        min-height: var(--ft-tap);
+    }
+
+    .el-segmented {
+        --el-segmented-item-selected-color: #fff;
+        min-height: 40px;
+        font-size: 14px;
+    }
+
+    .el-tabs__item {
+        height: 46px;
+        line-height: 46px;
+    }
+
+    .el-input-number--default {
+        width: 132px;
+    }
+}
+
+/*
+ * Кнопки со значком. Текстовые глифы («+», «✕») центрируются по метрикам шрифта,
+ * а не по кнопке, из-за чего «прыгают»; поэтому вместо них используются SVG-иконки
+ * Element Plus, а сама кнопка центрирует содержимое флексом.
+ */
+.ft-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--ft-text-secondary);
+    cursor: pointer;
+}
+
+.ft-icon-btn > .el-icon {
+    display: block;
+}
+
+/* Кнопка «⋯» в строках справочников — маленький значок, но крупная зона нажатия. */
+.el-dropdown > .el-button.is-link {
+    min-width: 40px;
+    min-height: 40px;
+    font-size: 20px;
+    color: var(--ft-text-secondary);
+}
+
+/* Заголовок вложенной страницы: кнопка «назад» и название. */
+.ft-page-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.ft-page-head__back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--ft-tap);
+    height: var(--ft-tap);
+    flex: 0 0 var(--ft-tap);
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ft-text-secondary);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.ft-page-head__back:hover {
+    background: var(--ft-surface-muted);
+}
+
+.ft-page-head__title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+}
