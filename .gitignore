@@ -8,5 +8,5 @@ dist-ssr
 !.vscode/extensions.json
 *.log
 
-# Локальная папка с архивами переноса — в репозиторий не нужна
+# A local folder with migration archives - not needed in the repository
 _to_delete

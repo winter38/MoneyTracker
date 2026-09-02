@@ -5,7 +5,7 @@ import type { CategoryGroup, CategoryKind, Subcategory } from "@/types/models";
 import { STORAGE_KEYS, loadState, saveState } from "@/utils/storage";
 import { createId } from "@/utils/id";
 
-/** Дерево «группа + её подкатегории» — то, что рисуется в выпадающих списках и в разделе «Категории». */
+/** A "group + its subcategories" tree - what gets rendered in the dropdowns and in the Categories section. */
 export interface CategoryTreeNode {
     group: CategoryGroup;
     children: Subcategory[];
@@ -32,7 +32,7 @@ export const useCategoriesStore = defineStore("categories", () => {
             .sort((a, b) => a.order - b.order);
     }
 
-    /** Дерево категорий одного направления (расход или доход). */
+    /** The category tree for one direction (expense or income). */
     function tree(kind: CategoryKind, includeArchived = false): CategoryTreeNode[] {
         return groups.value
             .filter((group) => group.kind === kind && (includeArchived || !group.archived))
@@ -43,11 +43,11 @@ export const useCategoriesStore = defineStore("categories", () => {
     const expenseTree = computed(() => tree("expense"));
     const incomeTree = computed(() => tree("income"));
 
-    /** Полное имя для списков: «Кафе · Кофе». */
+    /** The full name for lists: "Cafe / Coffee". */
     function labelFor(groupId?: string, subcategoryId?: string): string {
         const group = groupById(groupId);
         if (!group) {
-            return "Без категории";
+            return "No category";
         }
         const child = subcategoryById(subcategoryId);
         return child ? `${group.name} · ${child.name}` : group.name;
@@ -71,7 +71,7 @@ export const useCategoriesStore = defineStore("categories", () => {
         }
     }
 
-    /** Удаляет группу вместе с её подкатегориями. Операции остаются, но теряют категорию. */
+    /** Deletes a group together with its subcategories. Transactions stay, but lose their category. */
     function removeGroup(id: string): void {
         groups.value = groups.value.filter((group) => group.id !== id);
         subcategories.value = subcategories.value.filter((item) => item.groupId !== id);

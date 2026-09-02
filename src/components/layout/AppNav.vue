@@ -10,18 +10,18 @@
     const accounts = useAccountsStore();
     const settings = useSettingsStore();
 
-    /** Разделы в том же порядке, что в 1Money. */
+    /** The sections, in the same order as in 1Money. */
     const links = [
-        { to: "/accounts", label: "Счета", icon: "👛" },
-        { to: "/categories", label: "Категории", icon: "◔" },
-        { to: "/transactions", label: "Операции", icon: "🧾" },
-        { to: "/budget", label: "Бюджет", icon: "◎" },
-        { to: "/overview", label: "Обзор", icon: "📈" },
+        { to: "/accounts", label: "Accounts", icon: "👛" },
+        { to: "/categories", label: "Categories", icon: "◔" },
+        { to: "/transactions", label: "Transactions", icon: "🧾" },
+        { to: "/budget", label: "Budget", icon: "◎" },
+        { to: "/overview", label: "Overview", icon: "📈" },
     ];
 
     const extra = [
-        { to: "/manage", label: "Справочники", icon: "⚑" },
-        { to: "/settings", label: "Настройки", icon: "⚙" },
+        { to: "/manage", label: "Manage", icon: "⚑" },
+        { to: "/settings", label: "Settings", icon: "⚙" },
     ];
 
     const totalLabel = computed(() => settings.money(accounts.totalBalance));
@@ -38,15 +38,15 @@
     <aside v-else class="sidebar">
         <div class="sidebar__brand">
             <span class="sidebar__logo">◈</span>
-            <span>Финансы</span>
+            <span>Finance</span>
         </div>
 
         <div class="sidebar__total">
-            <span class="ft-muted">Всего на счетах</span>
+            <span class="ft-muted">Total across accounts</span>
             <strong class="ft-amount">{{ totalLabel }}</strong>
         </div>
 
-        <el-button class="sidebar__add" type="primary" size="large" @click="$emit('add')">Добавить операцию</el-button>
+        <el-button class="sidebar__add" type="primary" size="large" @click="$emit('add')">Add transaction</el-button>
 
         <RouterLink v-for="link in links" :key="link.to" :to="link.to" class="sidebar__link">
             <span class="sidebar__icon" aria-hidden="true">{{ link.icon }}</span>
@@ -60,7 +60,7 @@
             {{ link.label }}
         </RouterLink>
 
-        <div class="sidebar__foot ft-muted">Данные хранятся только в этом браузере</div>
+        <div class="sidebar__foot ft-muted">Your data is kept in this browser only</div>
     </aside>
 </template>
 

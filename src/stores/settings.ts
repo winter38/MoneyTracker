@@ -7,7 +7,7 @@ import { formatMoney } from "@/utils/money";
 
 const DEFAULTS: Settings = {
     currency: "EUR",
-    locale: "ru-RU",
+    locale: "en-GB",
     theme: "auto",
     monthStartDay: 1,
 };
@@ -21,7 +21,7 @@ export const useSettingsStore = defineStore("settings", () => {
     const locale = computed(() => state.value.locale);
     const monthStartDay = computed(() => state.value.monthStartDay);
 
-    /** Символ валюты («€», «$») — для крупных сумм рядом с числом. */
+    /** The currency symbol ("EUR", "USD") - for large amounts shown next to the number. */
     const currencySymbol = computed(() => {
         try {
             const parts = new Intl.NumberFormat(state.value.locale, { style: "currency", currency: state.value.currency }).formatToParts(0);
@@ -31,20 +31,19 @@ export const useSettingsStore = defineStore("settings", () => {
         }
     });
 
-    /** Форматирует сумму текущей валютой — самый частый хелпер во вьюхах. */
-    const money = computed(() => (value: number, options?: Intl.NumberFormatOptions) =>
-        formatMoney(value, state.value.currency, state.value.locale, options),
+    /** Formats an amount in the current currency - the most used helper in the views. */
+    const money = computed(
+        () => (value: number, options?: Intl.NumberFormatOptions) => formatMoney(value, state.value.currency, state.value.locale, options),
     );
 
     function update(patch: Partial<Settings>): void {
         state.value = { ...state.value, ...patch };
     }
 
-    /** Применяет тему к <html>: Element Plus переключается классом `dark`. */
+    /** Applies the theme to <html>: Element Plus switches via the `dark` class. */
     function applyTheme(): void {
         const wantsDark =
-            state.value.theme === "dark" ||
-            (state.value.theme === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+            state.value.theme === "dark" || (state.value.theme === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.classList.toggle("dark", wantsDark);
     }
 

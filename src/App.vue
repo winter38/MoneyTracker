@@ -12,7 +12,7 @@
 
     const sheetRef = ref<InstanceType<typeof QuickAddSheet> | null>(null);
 
-    /** «Справочники» и «Настройки» — вложенные страницы: без общей шапки и без кнопки «+». */
+    /** Manage and Settings are sub-pages: no shared header and no "+" button. */
     const isSubPage = computed(() => ["manage", "settings"].includes(String(route.name)));
     const showHeader = computed(() => !isSubPage.value);
 
@@ -20,7 +20,7 @@
         sheetRef.value?.openNew();
     }
 
-    /** Открыть добавление сразу в выбранной категории — как тап по кольцу категорий. */
+    /** Open the add form straight into the chosen category - same as tapping the category ring. */
     function openForCategory(groupId: string, kind: "expense" | "income"): void {
         sheetRef.value?.openNew(kind, groupId);
     }
@@ -44,7 +44,7 @@
             </div>
         </main>
 
-        <button v-if="isMobile && !isSubPage" class="app__fab ft-icon-btn" type="button" aria-label="Добавить операцию" @click="openQuickAdd">
+        <button v-if="isMobile && !isSubPage" class="app__fab ft-icon-btn" type="button" aria-label="Add transaction" @click="openQuickAdd">
             <el-icon :size="30"><Plus /></el-icon>
         </button>
 
@@ -72,7 +72,7 @@
         padding: 16px 28px 40px;
     }
 
-    /* Снизу оставляем место под нижнюю навигацию и плавающую кнопку, чтобы они не перекрывали контент. */
+    /* Leave room at the bottom for the bottom nav and the floating button so they do not cover the content. */
     .app--mobile .app__content {
         padding: 10px 12px calc(var(--ft-nav-height) + 96px);
     }

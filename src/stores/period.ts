@@ -5,10 +5,10 @@ import { endOfPeriod, fromISODate, startOfPeriod, toISODate, today } from "@/uti
 import { useSettingsStore } from "@/stores/settings";
 
 /**
- * Текущий расчётный месяц — общий для всех вкладок.
+ * The current billing month - shared by every tab.
  *
- * Стор, а не композабл: период выбирается один раз в шапке и должен сохраняться
- * при переходе между «Категориями», «Бюджетом» и «Обзором», как в 1Money.
+ * A store rather than a composable: the period is picked once in the header and must persist
+ * while moving between Categories, Budget and Overview, the way 1Money does it.
  */
 export const usePeriodStore = defineStore("period", () => {
     const settings = useSettingsStore();
@@ -17,13 +17,13 @@ export const usePeriodStore = defineStore("period", () => {
     const from = computed(() => startOfPeriod(anchor.value, settings.monthStartDay));
     const to = computed(() => endOfPeriod(anchor.value, settings.monthStartDay));
 
-    /** «Август 2026» с заглавной буквы. */
+    /** "August 2026", capitalised. */
     const label = computed(() => {
         const text = fromISODate(from.value).toLocaleDateString(settings.locale, { month: "long", year: "numeric" });
         return text.charAt(0).toUpperCase() + text.slice(1);
     });
 
-    /** Число дней в периоде — показывается кружком слева от названия месяца. */
+    /** The number of days in the period - shown in the circle left of the month name. */
     const days = computed(() => {
         const start = fromISODate(from.value).getTime();
         const end = fromISODate(to.value).getTime();

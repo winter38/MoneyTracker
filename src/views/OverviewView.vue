@@ -14,8 +14,8 @@
     import { iconTint } from "@/utils/color";
 
     /**
-     * Сводный экран: итоги периода, динамика по месяцам, структура расходов
-     * и последние операции — то, что в 1Money лежит на вкладке Overview.
+     * The summary screen: the period totals, the month-by-month trend, the expense breakdown
+     * and the latest transactions - what 1Money keeps on its Overview tab.
      */
     const emit = defineEmits<{ editTransaction: [id: string] }>();
 
@@ -33,7 +33,7 @@
     const income = computed(() => transactions.totalOf("income", period.from, period.to));
     const netto = computed(() => round2(income.value - expense.value));
 
-    /* ---------- Средние значения ---------- */
+    /* ---------- Averages ---------- */
 
     const daysPassed = computed(() => {
         const start = fromISODate(period.from).getTime();
@@ -50,7 +50,7 @@
         return transactions.totalOf("expense", toISODate(start), today());
     });
 
-    /* ---------- Динамика по месяцам ---------- */
+    /* ---------- Month-by-month trend ---------- */
 
     const monthly = computed(() => {
         const totals = transactions.monthlyTotals();
@@ -69,8 +69,8 @@
     const hasMonthly = computed(() => monthly.value.labels.length > 0);
 
     const monthlySeries = computed(() => [
-        { name: "Расходы", data: monthly.value.expense },
-        { name: "Доходы", data: monthly.value.income },
+        { name: "Expenses", data: monthly.value.expense },
+        { name: "Income", data: monthly.value.income },
     ]);
 
     const monthlyOptions = computed(() => ({
@@ -87,7 +87,7 @@
         tooltip: { y: { formatter: (value: number) => settings.money(value) } },
     }));
 
-    /* ---------- Структура расходов ---------- */
+    /* ---------- Expense breakdown ---------- */
 
     const topGroups = computed(() => {
         const totals = transactions.totalsByGroup("expense", period.from, period.to);
@@ -97,7 +97,7 @@
                 const group = categories.groupById(groupId);
                 return {
                     id: groupId,
-                    name: group?.name ?? "Без категории",
+                    name: group?.name ?? "No category",
                     icon: group?.icon ?? "•",
                     color: group?.color ?? "#8a909e",
                     amount,
@@ -113,42 +113,44 @@
     <div class="overview">
         <section class="overview__totals">
             <div class="ft-card total-tile">
-                <span>Расходы</span>
+                <span>Expenses</span>
                 <strong class="ft-amount ft-amount--expense">{{ settings.money(expense) }}</strong>
             </div>
             <div class="ft-card total-tile">
-                <span>Доходы</span>
+                <span>Income</span>
                 <strong class="ft-amount ft-amount--income">{{ settings.money(income) }}</strong>
             </div>
         </section>
 
         <section class="ft-card">
             <div class="overview__balance">
-                <span class="ft-muted">Итог периода</span>
-                <strong class="ft-amount" :class="netto < 0 ? 'ft-amount--expense' : 'ft-amount--income'">{{ settings.money(netto) }}</strong>
+                <span class="ft-muted">Net for the period</span>
+                <strong class="ft-amount" :class="netto < 0 ? 'ft-amount--expense' : 'ft-amount--income'">{{
+                    settings.money(netto)
+                }}</strong>
             </div>
             <apexchart v-if="hasMonthly" type="bar" :height="isMobile ? 210 : 280" :options="monthlyOptions" :series="monthlySeries" />
-            <p v-else class="ft-empty">Данных пока нет — добавьте несколько операций</p>
+            <p v-else class="ft-empty">No data yet - add a few transactions</p>
         </section>
 
         <section class="overview__stats">
             <div class="ft-card stat">
-                <span class="ft-muted">В день (сред.)</span>
+                <span class="ft-muted">Per day (avg.)</span>
                 <strong class="ft-amount">{{ settings.money(perDay) }}</strong>
             </div>
             <div class="ft-card stat">
-                <span class="ft-muted">Сегодня</span>
+                <span class="ft-muted">Today</span>
                 <strong class="ft-amount">{{ settings.money(todaySpent) }}</strong>
             </div>
             <div class="ft-card stat">
-                <span class="ft-muted">За 7 дней</span>
+                <span class="ft-muted">Last 7 days</span>
                 <strong class="ft-amount">{{ settings.money(weekSpent) }}</strong>
             </div>
         </section>
 
         <section class="ft-card">
-            <h3 class="ft-section-title">Куда уходят деньги</h3>
-            <p v-if="!topGroups.length" class="ft-empty">За этот период расходов нет</p>
+            <h3 class="ft-section-title">Where the money goes</h3>
+            <p v-if="!topGroups.length" class="ft-empty">No expenses in this period</p>
             <div v-for="row in topGroups" :key="row.id" class="group-row">
                 <span class="group-row__icon" :style="iconTint(row.color)">{{ row.icon }}</span>
                 <div class="group-row__body">
@@ -166,10 +168,14 @@
 
         <section class="ft-card ft-card--flush">
             <h3 class="ft-section-title overview__list-title">
-                Последние операции
-                <el-button link type="primary" @click="router.push('/transactions')">Все</el-button>
+                Latest transactions
+                <el-button link type="primary" @click="router.push('/transactions')">All</el-button>
             </h3>
-            <TransactionList :items="recent" empty-text="Добавьте первую операцию кнопкой «+»" @select="(id) => emit('editTransaction', id)" />
+            <TransactionList
+                :items="recent"
+                empty-text="Add your first transaction with the '+' button"
+                @select="(id) => emit('editTransaction', id)"
+            />
         </section>
     </div>
 </template>
@@ -268,7 +274,7 @@
         font-size: 14px;
     }
 
-    /* Процент вынесен вправо от полосы — на самой полосе он перекрывал заливку. */
+    /* The percentage sits to the right of the bar - on the bar itself it covered the fill. */
     .group-row__meter {
         display: flex;
         align-items: center;

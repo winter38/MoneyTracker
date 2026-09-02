@@ -6,8 +6,8 @@
     import { useSettingsStore } from "@/stores/settings";
 
     /**
-     * Общая шапка: суммарный баланс и переключатель расчётного месяца.
-     * Период живёт в сторе, поэтому одинаков на всех вкладках.
+     * The shared header: the total balance and the billing-month switcher.
+     * The period lives in a store, so it is the same on every tab.
      */
     const router = useRouter();
     const accounts = useAccountsStore();
@@ -18,24 +18,24 @@
 <template>
     <header class="app-header">
         <div class="app-header__row">
-            <button type="button" class="app-header__icon ft-icon-btn" aria-label="Справочники" @click="router.push('/manage')">
+            <button type="button" class="app-header__icon ft-icon-btn" aria-label="Manage" @click="router.push('/manage')">
                 <el-icon :size="20"><Menu /></el-icon>
             </button>
 
             <div class="app-header__total">
-                <span class="app-header__caption">Все счета</span>
+                <span class="app-header__caption">All accounts</span>
                 <strong class="ft-amount" :class="{ 'ft-amount--expense': accounts.totalBalance < 0 }">
                     {{ settings.money(accounts.totalBalance) }}
                 </strong>
             </div>
 
-            <button type="button" class="app-header__icon ft-icon-btn" aria-label="Настройки" @click="router.push('/settings')">
+            <button type="button" class="app-header__icon ft-icon-btn" aria-label="Settings" @click="router.push('/settings')">
                 <el-icon :size="20"><Setting /></el-icon>
             </button>
         </div>
 
         <div class="app-header__row app-header__row--period">
-            <button type="button" class="app-header__arrow ft-icon-btn" aria-label="Предыдущий месяц" @click="period.shift(-1)">
+            <button type="button" class="app-header__arrow ft-icon-btn" aria-label="Previous month" @click="period.shift(-1)">
                 <el-icon :size="20"><DArrowLeft /></el-icon>
             </button>
 
@@ -43,7 +43,7 @@
                 type="button"
                 class="period-pill"
                 :class="{ 'period-pill--other': !period.isCurrent }"
-                :title="period.isCurrent ? 'Текущий месяц' : 'Вернуться к текущему месяцу'"
+                :title="period.isCurrent ? 'Current month' : 'Back to the current month'"
                 @click="period.reset"
             >
                 <span class="period-pill__days">{{ period.days }}</span>
@@ -51,8 +51,8 @@
                 <el-icon v-if="!period.isCurrent" class="period-pill__reset" :size="14"><RefreshLeft /></el-icon>
             </button>
 
-            <!-- Вперёд листается свободно: планы и будущие повторяющиеся операции тоже надо смотреть. -->
-            <button type="button" class="app-header__arrow ft-icon-btn" aria-label="Следующий месяц" @click="period.shift(1)">
+            <!-- Paging forward is unrestricted: plans and future recurring transactions need looking at too. -->
+            <button type="button" class="app-header__arrow ft-icon-btn" aria-label="Next month" @click="period.shift(1)">
                 <el-icon :size="20"><DArrowRight /></el-icon>
             </button>
         </div>
@@ -110,7 +110,7 @@
         min-width: 0;
     }
 
-    /* На широком экране «Справочники» и «Настройки» уже есть в боковом меню. */
+    /* On a wide screen, Manage and Settings are already in the sidebar. */
     @media (min-width: 900px) {
         .app-header__icon {
             visibility: hidden;
@@ -142,7 +142,7 @@
         cursor: pointer;
     }
 
-    /* Не текущий месяц подсвечен, чтобы было видно, что смотришь не «сейчас». */
+    /* A non-current month is highlighted so it is obvious you are not looking at "now". */
     .period-pill--other {
         background: color-mix(in srgb, var(--ft-accent) 16%, var(--ft-surface));
         color: var(--ft-accent);

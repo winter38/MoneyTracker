@@ -12,8 +12,8 @@
     import { parseAmount, round2 } from "@/utils/money";
 
     /**
-     * Бюджет: план на расчётный месяц по каждой группе категорий и факт по операциям.
-     * План один и тот же для всех месяцев — так же ведёт себя базовый бюджет 1Money.
+     * Budget: the plan for the billing month per category group, plus the actuals from the transactions.
+     * The plan is the same for every month - that is how the basic 1Money budget behaves too.
      */
     const budgets = useBudgetsStore();
     const categories = useCategoriesStore();
@@ -64,7 +64,7 @@
 
     function savePlan(groupId: string, raw: string): void {
         budgets.set(groupId, parseAmount(raw));
-        ElMessage.success("План сохранён");
+        ElMessage.success("Plan saved");
     }
 </script>
 
@@ -73,15 +73,15 @@
         <section class="ft-card budget__summary">
             <div class="budget__totals">
                 <div>
-                    <span class="ft-muted">План</span>
+                    <span class="ft-muted">Plan</span>
                     <strong class="ft-amount">{{ settings.money(expenseTotals.planned) }}</strong>
                 </div>
                 <div>
-                    <span class="ft-muted">Потрачено</span>
+                    <span class="ft-muted">Spent</span>
                     <strong class="ft-amount ft-amount--expense">{{ settings.money(expenseTotals.spent) }}</strong>
                 </div>
                 <div>
-                    <span class="ft-muted">{{ left >= 0 ? "Осталось" : "Перерасход" }}</span>
+                    <span class="ft-muted">{{ left >= 0 ? "Left" : "Over plan" }}</span>
                     <strong class="ft-amount" :class="left >= 0 ? 'ft-amount--income' : 'ft-amount--expense'">
                         {{ settings.money(Math.abs(left)) }}
                     </strong>
@@ -93,12 +93,12 @@
             </div>
 
             <p v-if="expenseTotals.planned === 0" class="ft-muted budget__hint">
-                План пока не задан — нажмите «Задать план» у любой категории ниже.
+                No plan set yet - press "Set a plan" on any category below.
             </p>
         </section>
 
         <section class="ft-card ft-card--flush">
-            <h3 class="ft-section-title budget__title">Расходы</h3>
+            <h3 class="ft-section-title budget__title">Expenses</h3>
             <BudgetRow
                 v-for="row in expenseRows"
                 :key="row.id"
@@ -109,12 +109,12 @@
                 :planned="row.planned"
                 @save="(value) => savePlan(row.id, value)"
             />
-            <p v-if="!expenseRows.length" class="ft-empty">Нет расходных категорий</p>
+            <p v-if="!expenseRows.length" class="ft-empty">No expense categories</p>
         </section>
 
         <section class="ft-card ft-card--flush">
             <h3 class="ft-section-title budget__title">
-                <span>Доходы</span>
+                <span>Income</span>
                 <span class="ft-amount ft-amount--income">{{ settings.money(incomeTotals.spent) }}</span>
             </h3>
             <BudgetRow
@@ -128,7 +128,7 @@
                 :planned="row.planned"
                 @save="(value) => savePlan(row.id, value)"
             />
-            <p v-if="!incomeRows.length" class="ft-empty">Нет доходных категорий</p>
+            <p v-if="!incomeRows.length" class="ft-empty">No income categories</p>
         </section>
     </div>
 </template>

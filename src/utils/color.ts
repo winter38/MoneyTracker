@@ -1,9 +1,9 @@
 /**
- * Единый стиль иконок категорий и счетов во всём приложении:
- * приглушённая заливка цветом сущности, сам значок и тонкое кольцо — в её цвете.
+ * A single icon style for categories and accounts across the whole app:
+ * a muted fill in the entity color, with the glyph and a thin ring in that same color.
  *
- * Сплошная заливка выглядела по-разному в светлой и тёмной теме и хуже читалась,
- * поэтому везде используется этот хелпер, а не самодельные стили по месту.
+ * A solid fill looked different in light and dark themes and was harder to read,
+ * so this helper is used everywhere instead of ad-hoc inline styles.
  */
 export function iconTint(color: string): Record<string, string> {
     return {

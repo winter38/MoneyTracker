@@ -1,12 +1,12 @@
-# Автодеплой на GitHub Pages: собирает проект и публикует папку dist
-# при каждом пуше в main. Настройка на стороне GitHub — один раз:
+# Auto-deploy to GitHub Pages: builds the project and publishes the dist folder
+# on every push to main. One-time setup on the GitHub side:
 # Settings → Pages → Build and deployment → Source: GitHub Actions.
 name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
-  # Позволяет запустить деплой вручную из вкладки Actions.
+  # Allows the deploy to be triggered manually from the Actions tab.
   workflow_dispatch:
 
 permissions:
@@ -14,7 +14,7 @@ permissions:
   pages: write
   id-token: write
 
-# Параллельные деплои не нужны: публикуем всегда последнюю версию.
+# Concurrent deploys are unnecessary: we always publish the latest version.
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -32,7 +32,7 @@ jobs:
 
       - run: npm ci
 
-      # Тот же скрипт, что и локально: сначала проверка типов, потом сборка.
+      # The same script as locally: type-check first, then build.
       - run: npm run build
 
       - uses: actions/upload-pages-artifact@v3

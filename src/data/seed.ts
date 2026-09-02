@@ -3,7 +3,7 @@ import { useAccountsStore } from "@/stores/accounts";
 import { useCategoriesStore } from "@/stores/categories";
 import { STORAGE_KEYS, loadState, saveState } from "@/utils/storage";
 
-/** Палитра для групп категорий — проверенный набор, различимый в том числе при дальтонизме. */
+/** The palette for category groups - a tested set that stays distinguishable with color blindness too. */
 export const PALETTE = [
     "#2a78d6",
     "#eb6834",
@@ -24,24 +24,24 @@ interface SeedGroup {
     children: string[];
 }
 
-/** Стартовый набор категорий — примерно то, с чего начинает 1Money. Всё редактируется в разделе «Категории». */
+/** The starter set of categories - roughly what 1Money starts with. Everything is editable in the Categories section. */
 const SEED_GROUPS: SeedGroup[] = [
-    { name: "Продукты", icon: "🛒", kind: "expense", children: ["Супермаркет", "Рынок", "Доставка"] },
-    { name: "Кафе и рестораны", icon: "☕", kind: "expense", children: ["Кофе", "Обед", "Бар"] },
-    { name: "Транспорт", icon: "🚌", kind: "expense", children: ["Общественный транспорт", "Такси", "Бензин", "Парковка"] },
-    { name: "Жильё", icon: "🏠", kind: "expense", children: ["Аренда", "Коммунальные", "Интернет"] },
-    { name: "Здоровье", icon: "💊", kind: "expense", children: ["Аптека", "Врач", "Спорт"] },
-    { name: "Покупки", icon: "🛍️", kind: "expense", children: ["Одежда", "Электроника", "Для дома"] },
-    { name: "Развлечения", icon: "🎮", kind: "expense", children: ["Подписки", "Кино", "Игры", "Путешествия"] },
-    { name: "Прочее", icon: "📦", kind: "expense", children: ["Подарки", "Комиссии"] },
-    { name: "Зарплата", icon: "💼", kind: "income", children: ["Оклад", "Премия"] },
-    { name: "Подработка", icon: "💻", kind: "income", children: ["Фриланс"] },
-    { name: "Прочий доход", icon: "💰", kind: "income", children: ["Проценты", "Возврат", "Подарок"] },
+    { name: "Groceries", icon: "🛒", kind: "expense", children: ["Supermarket", "Market", "Delivery"] },
+    { name: "Cafes and restaurants", icon: "☕", kind: "expense", children: ["Coffee", "Lunch", "Bar"] },
+    { name: "Transport", icon: "🚌", kind: "expense", children: ["Public transport", "Taxi", "Fuel", "Parking"] },
+    { name: "Housing", icon: "🏠", kind: "expense", children: ["Rent", "Utilities", "Internet"] },
+    { name: "Health", icon: "💊", kind: "expense", children: ["Pharmacy", "Doctor", "Fitness"] },
+    { name: "Shopping", icon: "🛍️", kind: "expense", children: ["Clothes", "Electronics", "Home goods"] },
+    { name: "Entertainment", icon: "🎮", kind: "expense", children: ["Subscriptions", "Cinema", "Games", "Travel"] },
+    { name: "Other", icon: "📦", kind: "expense", children: ["Gifts", "Fees"] },
+    { name: "Salary", icon: "💼", kind: "income", children: ["Base pay", "Bonus"] },
+    { name: "Side income", icon: "💻", kind: "income", children: ["Freelance"] },
+    { name: "Other income", icon: "💰", kind: "income", children: ["Interest", "Refund", "Gift"] },
 ];
 
 /**
- * Наполняет пустое приложение стартовыми данными: один счёт и дерево категорий.
- * Выполняется один раз — факт заполнения запоминается в localStorage.
+ * Fills an empty app with starter data: one account and a category tree.
+ * Runs only once - the fact that it ran is remembered in localStorage.
  */
 export function seedIfEmpty(): void {
     const alreadySeeded = loadState<boolean>(STORAGE_KEYS.seeded, false);
@@ -52,8 +52,8 @@ export function seedIfEmpty(): void {
         return;
     }
 
-    accounts.add({ name: "Наличные", icon: "💵", color: "#1baf7a", initialBalance: 0 });
-    accounts.add({ name: "Карта", icon: "💳", color: "#2a78d6", initialBalance: 0 });
+    accounts.add({ name: "Cash", icon: "💵", color: "#1baf7a", initialBalance: 0 });
+    accounts.add({ name: "Card", icon: "💳", color: "#2a78d6", initialBalance: 0 });
 
     SEED_GROUPS.forEach((seed, index) => {
         const group = categories.addGroup({

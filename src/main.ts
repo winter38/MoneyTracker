@@ -3,7 +3,7 @@ import { createPinia } from "pinia";
 import ElementPlus from "element-plus";
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 import VueApexCharts from "vue3-apexcharts";
-import ru from "element-plus/es/locale/lang/ru";
+import en from "element-plus/es/locale/lang/en";
 
 import "element-plus/dist/index.css";
 import "element-plus/theme-chalk/dark/css-vars.css";
@@ -20,16 +20,16 @@ const pinia = createPinia();
 
 app.use(pinia);
 app.use(router);
-// На узком экране элементы Element Plus крупнее — по 32-пиксельным полям тяжело попадать пальцем.
-app.use(ElementPlus, { locale: ru, size: window.matchMedia("(max-width: 899px)").matches ? "large" : "default" });
+// On a narrow screen Element Plus components are larger - 32px tall fields are hard to hit with a finger.
+app.use(ElementPlus, { locale: en, size: window.matchMedia("(max-width: 899px)").matches ? "large" : "default" });
 app.use(VueApexCharts);
 
 Object.entries(ElementPlusIconsVue).forEach(([name, component]) => {
     app.component(name, component);
 });
 
-// Стартовая инициализация: тема, демо-категории для пустой базы и досоздание
-// операций по повторяющимся правилам за время, пока приложение не открывали.
+// Startup work: the theme, demo categories for an empty database, and catching up on
+// transactions from recurring rules for the time the app was not open.
 useSettingsStore().applyTheme();
 seedIfEmpty();
 useRecurringStore().materializeDue();

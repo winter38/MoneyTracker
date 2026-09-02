@@ -9,7 +9,7 @@ import { STORAGE_KEYS, saveState } from "@/utils/storage";
 
 export const BACKUP_VERSION = 2;
 
-/** Собирает полный снимок данных приложения. */
+/** Builds a full snapshot of the app data. */
 export function buildBackup(): BackupFile {
     const accounts = useAccountsStore();
     const budgets = useBudgetsStore();
@@ -32,7 +32,7 @@ export function buildBackup(): BackupFile {
     };
 }
 
-/** Скачивает бэкап файлом — единственный способ вынести данные с устройства. */
+/** Downloads the backup as a file - the only way to get the data off the device. */
 export function downloadBackup(): void {
     const backup = buildBackup();
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
@@ -46,19 +46,19 @@ export function downloadBackup(): void {
     URL.revokeObjectURL(url);
 }
 
-/** Проверяет, что в файле действительно наш бэкап, прежде чем что-то перезаписывать. */
+/** Checks that the file really is one of our backups before overwriting anything. */
 export function parseBackup(raw: string): BackupFile {
     const parsed = JSON.parse(raw) as Partial<BackupFile>;
     if (parsed.app !== "finance-tracker" || !Array.isArray(parsed.transactions)) {
-        throw new Error("Файл не похож на резервную копию Finance Tracker");
+        throw new Error("This file does not look like a Finance Tracker backup");
     }
     if ((parsed.version ?? 0) > BACKUP_VERSION) {
-        throw new Error("Файл создан более новой версией приложения");
+        throw new Error("This file was created by a newer version of the app");
     }
     return parsed as BackupFile;
 }
 
-/** Полностью заменяет данные приложения содержимым бэкапа. */
+/** Replaces the app data entirely with the backup contents. */
 export function restoreBackup(backup: BackupFile): void {
     const accounts = useAccountsStore();
     const budgets = useBudgetsStore();
@@ -71,7 +71,7 @@ export function restoreBackup(backup: BackupFile): void {
     categories.replaceAll(backup.groups ?? [], backup.subcategories ?? []);
     transactions.replaceAll(backup.transactions ?? []);
     recurring.replaceAll(backup.recurring ?? []);
-    // Бюджеты появились во второй версии формата — в старых файлах их просто нет.
+    // Budgets appeared in format version 2 - older files simply do not have them.
     budgets.replaceAll(backup.budgets ?? []);
     if (backup.settings) {
         settings.replaceAll(backup.settings);
@@ -80,14 +80,14 @@ export function restoreBackup(backup: BackupFile): void {
     saveState(STORAGE_KEYS.seeded, true);
 }
 
-/** Экспорт операций в CSV — для Excel и для переноса в другие трекеры. */
+/** Exports transactions to CSV - for Excel and for moving to another tracker. */
 export function downloadCsv(): void {
     const transactions = useTransactionsStore();
     const accounts = useAccountsStore();
     const categories = useCategoriesStore();
 
     const escape = (value: string): string => `"${value.replace(/"/g, '""')}"`;
-    const rows = [["Дата", "Тип", "Сумма", "Счёт", "Счёт-получатель", "Группа", "Подкатегория", "Заметка"].join(",")];
+    const rows = [["Date", "Type", "Amount", "Account", "Destination account", "Group", "Subcategory", "Note"].join(",")];
 
     transactions.sorted.forEach((tx) => {
         rows.push(
@@ -104,7 +104,7 @@ export function downloadCsv(): void {
         );
     });
 
-    // BOM, иначе Excel открывает кириллицу кракозябрами.
+    // BOM, otherwise Excel shows non-ASCII text as garbage.
     const blob = new Blob(["﻿" + rows.join("\n")], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");

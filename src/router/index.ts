@@ -1,11 +1,11 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
 /**
- * Hash-режим выбран намеренно: собранный `dist` так открывается и с файловой системы,
- * и с любого статического хостинга без настройки rewrite-правил.
+ * Hash mode is a deliberate choice: the built `dist` then opens both from the file system
+ * and from any static host, with no rewrite rules to configure.
  *
- * Порядок разделов повторяет 1Money: Счета · Категории · Операции · Бюджет · Обзор,
- * а «Справочники» и «Настройки» живут за кнопками в шапке.
+ * The section order follows 1Money: Accounts, Categories, Transactions, Budget, Overview,
+ * while Manage and Settings live behind buttons in the header.
  */
 const router = createRouter({
     history: createWebHashHistory(),
@@ -15,43 +15,43 @@ const router = createRouter({
             path: "/accounts",
             name: "accounts",
             component: () => import("@/views/AccountsView.vue"),
-            meta: { title: "Счета" },
+            meta: { title: "Accounts" },
         },
         {
             path: "/categories",
             name: "categories",
             component: () => import("@/views/CategoriesView.vue"),
-            meta: { title: "Категории" },
+            meta: { title: "Categories" },
         },
         {
             path: "/transactions",
             name: "transactions",
             component: () => import("@/views/TransactionsView.vue"),
-            meta: { title: "Операции" },
+            meta: { title: "Transactions" },
         },
         {
             path: "/budget",
             name: "budget",
             component: () => import("@/views/BudgetView.vue"),
-            meta: { title: "Бюджет" },
+            meta: { title: "Budget" },
         },
         {
             path: "/overview",
             name: "overview",
             component: () => import("@/views/OverviewView.vue"),
-            meta: { title: "Обзор" },
+            meta: { title: "Overview" },
         },
         {
             path: "/manage",
             name: "manage",
             component: () => import("@/views/ManageView.vue"),
-            meta: { title: "Справочники" },
+            meta: { title: "Manage" },
         },
         {
             path: "/settings",
             name: "settings",
             component: () => import("@/views/SettingsView.vue"),
-            meta: { title: "Настройки" },
+            meta: { title: "Settings" },
         },
         { path: "/:pathMatch(.*)*", redirect: "/overview" },
     ],
@@ -60,7 +60,7 @@ const router = createRouter({
 
 router.afterEach((to) => {
     const title = (to.meta.title as string | undefined) ?? "";
-    document.title = title ? `${title} · Финансы` : "Финансы";
+    document.title = title ? `${title} - Finance` : "Finance";
 });
 
 export default router;

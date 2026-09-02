@@ -36,17 +36,17 @@ export const useRecurringStore = defineStore("recurring", () => {
     }
 
     /**
-     * Досоздаёт операции по всем правилам, у которых срок наступил.
-     * Вызывается один раз при запуске приложения: если ты не заходил неделю,
-     * за эту неделю операции создадутся разом.
+     * Creates the pending transactions for every rule whose due date has arrived.
+     * Called once on app start: if you have not opened the app for a week,
+     * that whole week of transactions is created in one go.
      *
-     * @returns сколько операций было создано.
+     * @returns how many transactions were created.
      */
     function materializeDue(): number {
         const transactions = useTransactionsStore();
         const now = today();
         let created = 0;
-        // Ограничитель на случай кривых данных (interval = 0 и т.п.) — не даём зациклиться.
+        // A guard against broken data (interval = 0 and the like) - keeps us out of an endless loop.
         const MAX_STEPS_PER_RULE = 500;
 
         items.value.forEach((rule) => {

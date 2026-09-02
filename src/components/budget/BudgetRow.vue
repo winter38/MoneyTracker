@@ -5,9 +5,9 @@
     import { iconTint } from "@/utils/color";
 
     /**
-     * Строка бюджета: категория, факт, план и полоса выполнения.
-     * Вся строка — кнопка: тап открывает ввод плана прямо в ней,
-     * отдельная маленькая кнопка на телефоне только мешала бы.
+     * A budget row: the category, the actual, the plan and a progress bar.
+     * The whole row is a button: a tap opens the plan input right inside it,
+     * a separate small button would only get in the way on a phone.
      */
     const props = defineProps<{
         name: string;
@@ -15,7 +15,7 @@
         color: string;
         spent: number;
         planned: number;
-        /** Для доходов «перерасход» не окрашивается тревожным цветом. */
+        /** For income, going "over plan" is not painted in an alarming color. */
         income?: boolean;
     }>();
 
@@ -47,7 +47,7 @@
         return props.planned > 0 ? Math.min(100, Math.round((props.spent / props.planned) * 100)) : 0;
     }
 
-    /** Цвет полосы: перерасход — красный, близко к лимиту — жёлтый. */
+    /** The bar color: over plan is red, close to the limit is amber. */
     function tone(): string {
         if (props.planned <= 0) {
             return "var(--ft-border)";
@@ -80,14 +80,14 @@
                         class="row__input"
                         type="text"
                         inputmode="decimal"
-                        placeholder="План на месяц"
+                        placeholder="Plan for the month"
                         @keyup.enter="commit"
                         @blur="commit"
                     />
                 </template>
                 <template v-else>
                     <button type="button" class="row__plan" @click="startEdit">
-                        {{ planned > 0 ? `План ${settings.money(planned)}` : "Задать план" }}
+                        {{ planned > 0 ? `Plan ${settings.money(planned)}` : "Set a plan" }}
                     </button>
                     <span v-if="planned > 0" class="ft-muted row__percent">{{ percent() }}%</span>
                 </template>
@@ -176,7 +176,7 @@
         background: var(--ft-surface);
         color: var(--ft-text);
         font: inherit;
-        font-size: 16px; /* iOS не зумит страницу при фокусе, если шрифт не меньше 16px */
+        font-size: 16px; /* iOS does not zoom the page on focus as long as the font is at least 16px */
         outline: none;
     }
 

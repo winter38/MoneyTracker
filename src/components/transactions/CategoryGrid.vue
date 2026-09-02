@@ -11,16 +11,16 @@
 
     const props = defineProps<{
         kind: CategoryKind;
-        /** Выбранная пара [groupId, subcategoryId?]. */
+        /** The selected pair [groupId, subcategoryId?]. */
         groupId?: string;
         subcategoryId?: string;
-        /** Показывать под иконкой, сколько уже потрачено в категории за текущий период. */
+        /** Show under the icon how much has already been spent in the category this period. */
         showAmounts?: boolean;
     }>();
 
     /**
-     * `final` отличает окончательный выбор от «провалиться в группу»: тап по группе
-     * с подкатегориями раскрывает её, но саму группу уже помечает выбранной.
+     * `final` tells a final choice apart from "drill into the group": tapping a group
+     * that has subcategories expands it, but already marks the group itself as selected.
      */
     const emit = defineEmits<{ select: [groupId: string, subcategoryId: string | undefined, final: boolean] }>();
 
@@ -29,24 +29,24 @@
     const settings = useSettingsStore();
     const transactions = useTransactionsStore();
 
-    /** Группа, внутрь которой «провалились». null — показываем верхний уровень. */
+    /** The group we drilled into. null means the top level is shown. */
     const openGroupId = ref<string | null>(null);
 
-    /** Потрачено по группам за выбранный месяц — подписи под иконками. */
+    /** Spending per group for the selected month - the labels under the icons. */
     const groupTotals = computed(() => (props.showAmounts ? transactions.totalsByGroup(props.kind, period.from, period.to) : {}));
 
-    /** Потрачено по подкатегориям раскрытой группы. */
+    /** Spending per subcategory of the expanded group. */
     const subTotals = computed(() =>
         props.showAmounts && openGroupId.value ? transactions.totalsBySubcategory(openGroupId.value, period.from, period.to) : {},
     );
 
-    /** Крупные суммы сокращаем — в плитке помещается всего пара сантиметров текста. */
+    /** Large amounts get abbreviated - a tile only fits a couple of centimetres of text. */
     function amountLabel(value: number | undefined): string {
         const amount = value ?? 0;
         return Math.abs(amount) >= 100000 ? `${formatCompact(amount, settings.locale)} ${settings.currencySymbol}` : settings.money(amount);
     }
 
-    // При смене расход/доход возвращаемся на верхний уровень.
+    // Switching between expense and income returns us to the top level.
     watch(
         () => props.kind,
         () => (openGroupId.value = null),
@@ -59,8 +59,8 @@
     function onGroupTap(id: string): void {
         const hasChildren = categories.childrenOf(id).length > 0;
         if (hasChildren) {
-            // Как в 1Money: тап по группе раскрывает её подкатегории,
-            // но сама группа уже считается выбранной.
+            // As in 1Money: tapping a group expands its subcategories,
+            // but the group itself already counts as selected.
             openGroupId.value = id;
             emit("select", id, undefined, false);
         } else {
@@ -72,11 +72,11 @@
 <template>
     <div class="grid-wrap">
         <header v-if="openGroup" class="grid-head">
-            <button type="button" class="grid-head__back" @click="openGroupId = null">‹ Все категории</button>
+            <button type="button" class="grid-head__back" @click="openGroupId = null">‹ All categories</button>
             <span class="grid-head__title">{{ openGroup.icon }} {{ openGroup.name }}</span>
         </header>
 
-        <!-- Верхний уровень: группы -->
+        <!-- Top level: the groups -->
         <div v-if="!openGroup" class="grid">
             <button
                 v-for="group in groups"
@@ -88,12 +88,14 @@
             >
                 <span class="tile__icon" :style="iconTint(group.color)">{{ group.icon }}</span>
                 <span class="tile__name">{{ group.name }}</span>
-                <span v-if="showAmounts" class="tile__amount" :style="{ color: group.color }">{{ amountLabel(groupTotals[group.id]) }}</span>
+                <span v-if="showAmounts" class="tile__amount" :style="{ color: group.color }">{{
+                    amountLabel(groupTotals[group.id])
+                }}</span>
             </button>
-            <p v-if="!groups.length" class="ft-empty">Категорий нет — добавьте их в «Справочниках»</p>
+            <p v-if="!groups.length" class="ft-empty">No categories yet - add them in Manage</p>
         </div>
 
-        <!-- Внутри группы: сама группа + её подкатегории -->
+        <!-- Inside a group: the group itself plus its subcategories -->
         <div v-else class="grid">
             <button
                 type="button"
@@ -102,8 +104,10 @@
                 @click="emit('select', openGroup.id, undefined, true)"
             >
                 <span class="tile__icon" :style="iconTint(openGroup.color)">{{ openGroup.icon }}</span>
-                <span class="tile__name">Вся группа</span>
-                <span v-if="showAmounts" class="tile__amount" :style="{ color: openGroup.color }">{{ amountLabel(groupTotals[openGroup.id]) }}</span>
+                <span class="tile__name">Whole group</span>
+                <span v-if="showAmounts" class="tile__amount" :style="{ color: openGroup.color }">{{
+                    amountLabel(groupTotals[openGroup.id])
+                }}</span>
             </button>
 
             <button
@@ -116,7 +120,9 @@
             >
                 <span class="tile__icon tile__icon--sub" :style="iconTint(openGroup.color)">{{ openGroup.icon }}</span>
                 <span class="tile__name">{{ child.name }}</span>
-                <span v-if="showAmounts" class="tile__amount" :style="{ color: openGroup.color }">{{ amountLabel(subTotals[child.id]) }}</span>
+                <span v-if="showAmounts" class="tile__amount" :style="{ color: openGroup.color }">{{
+                    amountLabel(subTotals[child.id])
+                }}</span>
             </button>
         </div>
     </div>

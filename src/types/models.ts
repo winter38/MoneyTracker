@@ -1,40 +1,40 @@
 /**
- * Доменная модель приложения.
+ * The app domain model.
  *
- * Все суммы хранятся положительными числами в единицах валюты (не в центах);
- * знак операции определяется полем `kind`. Для арифметики используйте
- * `round2()` из `@/utils/money`, чтобы не накапливать ошибку float.
+ * Every amount is stored as a positive number in currency units (not cents);
+ * the sign of a transaction comes from its `kind` field. For arithmetic use
+ * `round2()` from `@/utils/money` so float error does not accumulate.
  */
 
-/** Тип операции: расход, доход или перевод между своими счетами. */
+/** Transaction kind: an expense, an income, or a transfer between your own accounts. */
 export type TxKind = "expense" | "income" | "transfer";
 
-/** Направление категории — расходная или доходная ветка дерева. */
+/** Category direction - the expense or the income branch of the tree. */
 export type CategoryKind = "expense" | "income";
 
 /**
- * Периодичность повторяющейся операции.
- * `weekdays` и `weekends` — особые случаи: шаг всегда один день,
- * но выбираются только рабочие дни или только суббота с воскресеньем.
+ * How often a recurring transaction repeats.
+ * `weekdays` and `weekends` are special cases: the step is always one day,
+ * but only working days, or only Saturday and Sunday, are picked.
  */
 export type RecurrencePeriod = "daily" | "weekdays" | "weekends" | "weekly" | "monthly" | "yearly";
 
-/** Счёт (кошелёк, карта, накопления). */
+/** An account (cash, card, savings). */
 export interface Account {
     id: string;
     name: string;
-    /** Эмодзи-иконка, показывается в списках. */
+    /** Emoji icon, shown in lists. */
     icon: string;
-    /** HEX-цвет для маркера счёта. */
+    /** HEX color for the account marker. */
     color: string;
-    /** Стартовый остаток на момент заведения счёта. */
+    /** The balance the account started with when it was created. */
     initialBalance: number;
-    /** Архивные счета скрыты из выпадающих списков, но их история сохраняется. */
+    /** Archived accounts are hidden from the dropdowns, but their history is kept. */
     archived: boolean;
     order: number;
 }
 
-/** Группа категорий — верхний уровень дерева (например, «Продукты»). */
+/** A category group - the top level of the tree (for example, "Groceries"). */
 export interface CategoryGroup {
     id: string;
     name: string;
@@ -45,7 +45,7 @@ export interface CategoryGroup {
     order: number;
 }
 
-/** Подкатегория — второй уровень дерева (например, «Кофе» внутри «Кафе»). */
+/** A subcategory - the second level of the tree (for example, "Coffee" inside "Cafes"). */
 export interface Subcategory {
     id: string;
     groupId: string;
@@ -54,30 +54,30 @@ export interface Subcategory {
     order: number;
 }
 
-/** Единичная операция. */
+/** A single transaction. */
 export interface Transaction {
     id: string;
     kind: TxKind;
-    /** Всегда положительное число. */
+    /** Always a positive number. */
     amount: number;
-    /** Дата в формате YYYY-MM-DD (без времени — трекер оперирует днями). */
+    /** The date as YYYY-MM-DD (no time - the tracker works in whole days). */
     date: string;
-    /** Счёт-источник: откуда ушли деньги (расход, перевод) или куда пришли (доход). */
+    /** The source account: where the money left from (expense, transfer) or arrived at (income). */
     accountId: string;
-    /** Счёт-получатель, только для kind === "transfer". */
+    /** The destination account, only for kind === "transfer". */
     toAccountId?: string;
-    /** Категория верхнего уровня, для расхода и дохода. */
+    /** The top-level category, for expenses and income. */
     groupId?: string;
-    /** Подкатегория, необязательна даже если группа выбрана. */
+    /** The subcategory, optional even when a group is picked. */
     subcategoryId?: string;
     note: string;
-    /** Unix-время создания записи, для стабильной сортировки внутри одного дня. */
+    /** Unix creation time, for a stable sort order within a single day. */
     createdAt: number;
-    /** Проставляется, если операция создана из повторяющегося правила. */
+    /** Set when the transaction was created from a recurring rule. */
     recurringId?: string;
 }
 
-/** Шаблон повторяющейся операции (подписки, аренда, зарплата). */
+/** A recurring transaction template (subscriptions, rent, salary). */
 export interface RecurringRule {
     id: string;
     title: string;
@@ -89,34 +89,34 @@ export interface RecurringRule {
     subcategoryId?: string;
     note: string;
     period: RecurrencePeriod;
-    /** Каждые N периодов: interval=2 + period="weekly" — раз в две недели. */
+    /** Every N periods: interval=2 with period="weekly" means once every two weeks. */
     interval: number;
     startDate: string;
-    /** Дата следующего срабатывания, пересчитывается после каждого создания операции. */
+    /** The next due date, recalculated after every transaction the rule creates. */
     nextDate: string;
-    /** Необязательная дата окончания правила. */
+    /** An optional end date for the rule. */
     endDate?: string;
     active: boolean;
 }
 
-/** Пользовательские настройки. */
+/** User settings. */
 export interface Settings {
-    /** Код валюты по ISO 4217, например EUR. */
+    /** The ISO 4217 currency code, for example EUR. */
     currency: string;
-    /** Локаль форматирования чисел и дат. */
+    /** The locale used to format numbers and dates. */
     locale: string;
     theme: "light" | "dark" | "auto";
-    /** День начала расчётного месяца (1 — календарный месяц). */
+    /** The day the billing month starts on (1 means a calendar month). */
     monthStartDay: number;
 }
 
-/** План расходов или доходов по группе категорий на расчётный месяц. */
+/** An expense or income plan for a category group within the billing month. */
 export interface Budget {
     groupId: string;
     amount: number;
 }
 
-/** Формат файла резервной копии (экспорт/импорт). */
+/** The backup file format (export/import). */
 export interface BackupFile {
     app: "finance-tracker";
     version: number;
@@ -126,7 +126,7 @@ export interface BackupFile {
     subcategories: Subcategory[];
     transactions: Transaction[];
     recurring: RecurringRule[];
-    /** Появились во второй версии формата, в старых копиях поля нет. */
+    /** Added in format version 2, older copies do not have this field. */
     budgets?: Budget[];
     settings: Settings;
 }

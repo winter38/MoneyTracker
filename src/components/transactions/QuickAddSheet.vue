@@ -25,7 +25,7 @@
     const editingId = ref<string | null>(null);
     const dateSheetOpen = ref(false);
 
-    /** Какая половина шапки сейчас открыта для выбора. */
+    /** Which half of the header is currently open for picking. */
     const picker = ref<"none" | "from" | "to">("none");
 
     const form = reactive({
@@ -36,11 +36,11 @@
         groupId: undefined as string | undefined,
         subcategoryId: undefined as string | undefined,
         note: "",
-        /** Ключ повторения из RECURRENCE_PRESETS; null — разовая операция. */
+        /** The repeat key from RECURRENCE_PRESETS; null means a one-off transaction. */
         recurrence: null as string | null,
     });
 
-    /* ---------- Калькулятор ---------- */
+    /* ---------- Calculator ---------- */
 
     const entry = ref("");
     const pendingValue = ref<number | null>(null);
@@ -50,7 +50,7 @@
 
     const entryNumber = computed(() => Number.parseFloat(entry.value.replace(",", ".")) || 0);
 
-    /** Результат с учётом незавершённой операции. Пустой второй операнд нейтрален. */
+    /** The result including the unfinished operation. An empty second operand is neutral. */
     const total = computed(() => {
         if (pendingValue.value === null || pendingOp.value === null) {
             return round2(entryNumber.value);
@@ -117,14 +117,14 @@
         entry.value = "";
     }
 
-    /** Кнопка календаря на клавиатуре открывает лист с датой и повторением. */
+    /** The calendar key on the keypad opens the date and repeat sheet. */
     function openDatePicker(): void {
         dateSheetOpen.value = true;
     }
 
-    /* ---------- Открытие и закрытие ---------- */
+    /* ---------- Opening and closing ---------- */
 
-    /** Новая операция; можно сразу подставить категорию (тап по кольцу категорий). */
+    /** A new transaction; a category can be pre-filled (a tap on the category ring). */
     function openNew(kind: TxKind = "expense", groupId?: string): void {
         editingId.value = null;
         clearAmount();
@@ -156,7 +156,7 @@
         form.groupId = tx.groupId;
         form.subcategoryId = tx.subcategoryId;
         form.note = tx.note;
-        // Правило повторения редактируется отдельно в «Справочниках», здесь только сама операция.
+        // The repeat rule is edited separately in Manage; only the transaction itself is edited here.
         form.recurrence = null;
         picker.value = "none";
         dateSheetOpen.value = false;
@@ -174,41 +174,51 @@
         document.body.style.overflow = open ? "hidden" : "";
     });
 
-    /* ---------- Данные для шапки ---------- */
+    /* ---------- Data for the header ---------- */
 
     const isTransfer = computed(() => form.kind === "transfer");
     const isIncome = computed(() => form.kind === "income");
 
-    /** Слева всегда источник денег: для дохода это категория, иначе счёт. */
+    /** The left side is always the source of the money: for income that is the category, otherwise the account. */
     const leftSide = computed(() => {
         if (isIncome.value) {
             const group = categories.groupById(form.groupId);
-            return { caption: "Из категории", title: group?.name ?? "Выберите", icon: group?.icon ?? "＋", color: group?.color ?? "#8a909e" };
+            return {
+                caption: "From category",
+                title: group?.name ?? "Pick one",
+                icon: group?.icon ?? "＋",
+                color: group?.color ?? "#8a909e",
+            };
         }
         const account = accounts.byId(form.accountId);
-        return { caption: "Со счёта", title: account?.name ?? "Выберите", icon: account?.icon ?? "＋", color: account?.color ?? "#8a909e" };
+        return {
+            caption: "From account",
+            title: account?.name ?? "Pick one",
+            icon: account?.icon ?? "＋",
+            color: account?.color ?? "#8a909e",
+        };
     });
 
-    /** Справа всегда получатель: категория расхода, счёт дохода или счёт-получатель перевода. */
+    /** The right side is always the destination: the expense category, the income account, or the transfer target account. */
     const rightSide = computed(() => {
         if (isIncome.value || isTransfer.value) {
             const account = accounts.byId(isIncome.value ? form.accountId : form.toAccountId);
             return {
-                caption: isTransfer.value ? "На счёт" : "На счёт",
-                title: account?.name ?? "Выберите",
+                caption: isTransfer.value ? "To account" : "To account",
+                title: account?.name ?? "Pick one",
                 icon: account?.icon ?? "＋",
                 color: account?.color ?? "#8a909e",
             };
         }
         const group = categories.groupById(form.groupId);
-        return { caption: "В категорию", title: group?.name ?? "Выберите", icon: group?.icon ?? "＋", color: group?.color ?? "#8a909e" };
+        return { caption: "To category", title: group?.name ?? "Pick one", icon: group?.icon ?? "＋", color: group?.color ?? "#8a909e" };
     });
 
     const subcategoryName = computed(() => categories.subcategoryById(form.subcategoryId)?.name);
 
-    const kindLabel = computed(() => (form.kind === "expense" ? "Расход" : form.kind === "income" ? "Доход" : "Перевод"));
+    const kindLabel = computed(() => (form.kind === "expense" ? "Expense" : form.kind === "income" ? "Income" : "Transfer"));
 
-    /** Подпись выбранного повторения для строки внизу экрана. */
+    /** The label of the selected repeat option for the row at the bottom of the screen. */
     const recurrenceLabel = computed(() => presetByKey(form.recurrence)?.label);
 
     const canSubmit = computed(() => {
@@ -221,9 +231,9 @@
         return Boolean(form.accountId && form.groupId);
     });
 
-    /* ---------- Выбор в шапке ---------- */
+    /* ---------- Picking in the header ---------- */
 
-    /** Что открыть по тапу: слева — счёт (или категория для дохода), справа — наоборот. */
+    /** What a tap opens: on the left an account (or a category for income), on the right the other way round. */
     const pickerMode = computed<"account" | "category">(() => {
         if (picker.value === "from") {
             return isIncome.value ? "category" : "account";
@@ -234,7 +244,7 @@
     const pickerTitle = computed(() => (picker.value === "from" ? leftSide.value.caption : rightSide.value.caption));
 
     function onPickAccount(id: string): void {
-        // Для перевода левая половина — счёт-источник, правая — получатель.
+        // For a transfer the left half is the source account and the right one is the destination.
         if (isTransfer.value) {
             if (picker.value === "from") {
                 form.accountId = id;
@@ -253,13 +263,13 @@
     function onPickCategory(groupId: string, subcategoryId: string | undefined, final: boolean): void {
         form.groupId = groupId;
         form.subcategoryId = subcategoryId;
-        // Пока пользователь только раскрыл группу, окно остаётся открытым для выбора подкатегории.
+        // While the user has only expanded a group, the sheet stays open so a subcategory can be picked.
         if (final) {
             picker.value = "none";
         }
     }
 
-    /* ---------- Сохранение ---------- */
+    /* ---------- Saving ---------- */
 
     function payload() {
         return {
@@ -275,8 +285,8 @@
     }
 
     /**
-     * Заводит правило повторения: сама операция уже создана и считается первым
-     * срабатыванием, поэтому следующее назначаем на период вперёд.
+     * Creates the repeat rule: the transaction itself is already created and counts as the first
+     * occurrence, so the next one is scheduled a period ahead.
      */
     function createRecurringRule(): void {
         const preset = presetByKey(form.recurrence);
@@ -307,23 +317,23 @@
         }
         if (editingId.value) {
             transactions.update(editingId.value, payload());
-            ElMessage.success("Сохранено");
+            ElMessage.success("Saved");
         } else {
             transactions.add(payload());
             if (form.recurrence) {
                 createRecurringRule();
-                ElMessage.success(`Добавлено · ${presetByKey(form.recurrence)?.label.toLowerCase()}`);
+                ElMessage.success(`Added · ${presetByKey(form.recurrence)?.label.toLowerCase()}`);
             } else {
-                ElMessage.success("Добавлено");
+                ElMessage.success("Added");
             }
         }
         close();
     }
 
-    /** Дублирует операцию: те же данные, но как новая запись за сегодня. */
+    /** Duplicates the transaction: the same data, but as a new record dated today. */
     function duplicate(): void {
         transactions.add({ ...payload(), date: today() });
-        ElMessage.success("Операция продублирована");
+        ElMessage.success("Transaction duplicated");
         close();
     }
 
@@ -332,16 +342,16 @@
             return;
         }
         try {
-            await ElMessageBox.confirm("Удалить эту операцию?", "Удаление", {
+            await ElMessageBox.confirm("Delete this transaction?", "Delete", {
                 type: "warning",
-                confirmButtonText: "Удалить",
-                cancelButtonText: "Отмена",
+                confirmButtonText: "Delete",
+                cancelButtonText: "Cancel",
             });
             transactions.remove(editingId.value);
-            ElMessage.success("Удалено");
+            ElMessage.success("Deleted");
             close();
         } catch {
-            // Отмена пользователем.
+            // Cancelled by the user.
         }
     }
 </script>
@@ -351,29 +361,34 @@
         <div v-if="visible" class="sheet-overlay" @click.self="close">
             <section class="sheet" role="dialog" aria-modal="true">
                 <div class="sheet__kind">
-                    <button type="button" class="sheet__close ft-icon-btn" aria-label="Закрыть" @click="close">
+                    <button type="button" class="sheet__close ft-icon-btn" aria-label="Close" @click="close">
                         <el-icon :size="18"><Close /></el-icon>
                     </button>
                     <el-segmented
                         v-model="form.kind"
                         size="small"
                         :options="[
-                            { label: 'Расход', value: 'expense' },
-                            { label: 'Доход', value: 'income' },
-                            { label: 'Перевод', value: 'transfer' },
+                            { label: 'Expense', value: 'expense' },
+                            { label: 'Income', value: 'income' },
+                            { label: 'Transfer', value: 'transfer' },
                         ]"
                     />
                     <span class="sheet__close sheet__close--ghost" />
                 </div>
 
-                <!-- Двухцветная шапка: тап по половине выбирает счёт или категорию -->
+                <!-- The two-color header: tapping a half picks the account or the category -->
                 <div class="head" :style="{ '--head-right': rightSide.color }">
                     <button type="button" class="head__half" :style="{ background: leftSide.color }" @click="picker = 'from'">
                         <span class="head__caption">{{ leftSide.caption }}</span>
                         <span class="head__title">{{ leftSide.title }}</span>
                     </button>
 
-                    <button type="button" class="head__half head__half--right" :style="{ background: rightSide.color }" @click="picker = 'to'">
+                    <button
+                        type="button"
+                        class="head__half head__half--right"
+                        :style="{ background: rightSide.color }"
+                        @click="picker = 'to'"
+                    >
                         <span class="head__caption">{{ rightSide.caption }}</span>
                         <span class="head__title">{{ rightSide.title }}</span>
                     </button>
@@ -390,7 +405,7 @@
                         :style="{ borderColor: rightSide.color, color: rightSide.color }"
                         @click="picker = isIncome ? 'from' : 'to'"
                     >
-                        {{ subcategoryName ?? "Без подкатегории" }}
+                        {{ subcategoryName ?? "No subcategory" }}
                     </button>
 
                     <p class="sheet__kind-label" :class="`sheet__kind-label--${form.kind}`">{{ kindLabel }}</p>
@@ -400,7 +415,7 @@
                         <span class="sheet__value">{{ display }}</span>
                     </p>
 
-                    <input v-model="form.note" class="sheet__note" type="text" maxlength="120" placeholder="Заметка…" />
+                    <input v-model="form.note" class="sheet__note" type="text" maxlength="120" placeholder="Note…" />
                 </div>
 
                 <NumPad
@@ -417,13 +432,19 @@
                 <footer class="sheet__foot">
                     <template v-if="editingId">
                         <button type="button" class="action action--danger" @click="removeCurrent">
-                            <span class="action__icon ft-icon-btn"><el-icon :size="18"><Delete /></el-icon></span>Удалить
+                            <span class="action__icon ft-icon-btn"
+                                ><el-icon :size="18"><Delete /></el-icon></span
+                            >Delete
                         </button>
                         <button type="button" class="action" @click="openDatePicker">
-                            <span class="action__icon ft-icon-btn"><el-icon :size="18"><Calendar /></el-icon></span>Дата
+                            <span class="action__icon ft-icon-btn"
+                                ><el-icon :size="18"><Calendar /></el-icon></span
+                            >Date
                         </button>
                         <button type="button" class="action" @click="duplicate">
-                            <span class="action__icon ft-icon-btn"><el-icon :size="18"><CopyDocument /></el-icon></span>Дублировать
+                            <span class="action__icon ft-icon-btn"
+                                ><el-icon :size="18"><CopyDocument /></el-icon></span
+                            >Duplicate
                         </button>
                     </template>
                     <button v-else type="button" class="sheet__date" @click="openDatePicker">
@@ -520,15 +541,15 @@
         pointer-events: none;
     }
 
-    /* Две цветные половины с «выпирающими» иконками — узнаваемая шапка 1Money. */
+    /* Two colored halves with icons that stick out - the recognisable 1Money header. */
     .head {
         position: relative;
         display: flex;
     }
 
     /*
-     * Половины ровно по 50%: иконка счёта стоит на стыке по центру шапки,
-     * и если ширины разъедутся, она наползёт на текст правой половины.
+     * The halves are exactly 50% each: the account icon sits on the seam in the centre of the header,
+     * and if the widths drift apart it would overlap the text of the right half.
      */
     .head__half {
         flex: 1 1 50%;
@@ -538,7 +559,7 @@
         align-items: flex-start;
         justify-content: flex-end;
         gap: 2px;
-        /* Верхний отступ больше нижнего: под ним проходит «выпирающая» иконка категории. */
+        /* The top padding is larger than the bottom: the protruding category icon passes underneath it. */
         padding: 40px 14px 14px;
         border: none;
         color: #fff;
@@ -547,7 +568,7 @@
         font: inherit;
     }
 
-    /* Слева от текста — иконка счёта на стыке, сверху справа — иконка категории. */
+    /* To the left of the text is the account icon on the seam, at the top right the category icon. */
     .head__half--right {
         padding-left: 34px;
         padding-right: 16px;
@@ -569,8 +590,8 @@
     }
 
     /*
-     * Иконки «выпирают» за пределы цветной шапки на фон листа. В тёмной теме
-     * заливка совпадала с фоном и кружок пропадал — поэтому контурное кольцо.
+     * The icons stick out beyond the colored header onto the sheet background. In the dark theme
+     * the fill matched the background and the circle disappeared - hence the outlined ring.
      */
     .head__badge {
         position: absolute;
@@ -684,7 +705,7 @@
         background: var(--ft-surface-muted);
         color: var(--ft-text);
         font: inherit;
-        font-size: 16px; /* iOS не зумит страницу при фокусе, если шрифт не меньше 16px */
+        font-size: 16px; /* iOS does not zoom the page on focus as long as the font is at least 16px */
         text-align: center;
         outline: none;
     }
@@ -738,5 +759,4 @@
     .action--danger {
         color: var(--ft-expense);
     }
-
 </style>

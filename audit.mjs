@@ -1,9 +1,9 @@
 import { chromium } from "playwright";
 
 /**
- * Снимает все экраны в трёх ширинах и ищет типовые UI-проблемы:
- * горизонтальное переполнение, слишком мелкие кликабельные элементы,
- * перекрытие контента плавающей кнопкой.
+ * Captures every screen at three widths and looks for typical UI problems:
+ * horizontal overflow, tap targets that are too small,
+ * content covered by the floating button.
  */
 const b = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
 const MIN_TAP = 40;
@@ -35,7 +35,7 @@ const seed = () => {
         const d2 = new Date();
         d2.setMonth(d2.getMonth() - m);
         d2.setDate(5);
-        txs.push({ id: "y" + n++, kind: "income", amount: 2100, date: iso(d2), accountId: accs[1].id, groupId: inc[0].id, note: "Зарплата", createdAt: n });
+        txs.push({ id: "y" + n++, kind: "income", amount: 2100, date: iso(d2), accountId: accs[1].id, groupId: inc[0].id, note: "Salary", createdAt: n });
     }
     localStorage.setItem("finance-tracker:transactions", JSON.stringify(txs));
     localStorage.setItem("finance-tracker:budgets", JSON.stringify(exp.slice(0, 3).map((g, i) => ({ groupId: g.id, amount: 120 + i * 60 }))));
@@ -71,11 +71,11 @@ for (const vp of [
         await p.reload({ waitUntil: "networkidle" });
         await p.waitForTimeout(1100);
 
-        // Горизонтальное переполнение страницы
+        // Horizontal page overflow
         const overflow = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-        if (overflow > 1) problems.push(`${vp.name}/${name}: горизонтальная прокрутка на ${overflow}px`);
+        if (overflow > 1) problems.push(`${vp.name}/${name}: horizontal scroll of ${overflow}px`);
 
-        // Слишком мелкие кликабельные элементы
+        // Tap targets that are too small
         const small = await p.evaluate((min) => {
             const out = [];
             document.querySelectorAll("button, a, [role=button], input, .el-select").forEach((el) => {
@@ -88,7 +88,7 @@ for (const vp of [
             });
             return [...new Set(out)].slice(0, 6);
         }, MIN_TAP);
-        small.forEach((s) => problems.push(`${vp.name}/${name}: мелкий элемент — ${s}`));
+        small.forEach((s) => problems.push(`${vp.name}/${name}: small element - ${s}`));
 
         await p.screenshot({ path: `a-${vp.name}-${name}.png`, fullPage: vp.width < 900 });
     }
@@ -96,4 +96,4 @@ for (const vp of [
 }
 
 await b.close();
-console.log(problems.length ? [...new Set(problems)].join("\n") : "проблем не найдено");
+console.log(problems.length ? [...new Set(problems)].join("\n") : "no problems found");

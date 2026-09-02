@@ -16,24 +16,24 @@
     const periodIncome = computed(() => transactions.totalOf("income", period.from, period.to));
     const periodExpense = computed(() => transactions.totalOf("expense", period.from, period.to));
 
-    /** Движение по всем счетам за выбранный период — доходы минус расходы. */
+    /** The movement across all accounts for the selected period - income minus expenses. */
     const periodFlow = computed(() => round2(periodIncome.value - periodExpense.value));
 </script>
 
 <template>
     <div class="accounts-view">
-        <!-- Общий остаток уже висит в шапке, поэтому здесь — движение за выбранный месяц. -->
+        <!-- The overall balance already sits in the header, so this shows the movement for the selected month. -->
         <section class="ft-card accounts-view__summary">
             <div>
-                <span class="ft-muted">Доходы за период</span>
+                <span class="ft-muted">Income for the period</span>
                 <strong class="ft-amount ft-amount--income">{{ settings.money(periodIncome) }}</strong>
             </div>
             <div>
-                <span class="ft-muted">Расходы за период</span>
+                <span class="ft-muted">Expenses for the period</span>
                 <strong class="ft-amount ft-amount--expense">{{ settings.money(periodExpense) }}</strong>
             </div>
             <div>
-                <span class="ft-muted">Итог</span>
+                <span class="ft-muted">Net</span>
                 <strong class="ft-amount" :class="periodFlow < 0 ? 'ft-amount--expense' : 'ft-amount--income'">
                     {{ periodFlow >= 0 ? "+" : "−" }}{{ settings.money(Math.abs(periodFlow)) }}
                 </strong>

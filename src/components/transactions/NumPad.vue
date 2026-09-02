@@ -1,10 +1,10 @@
 <script setup lang="ts">
     /**
-     * Собственная цифровая клавиатура с калькулятором — раскладка как в 1Money:
-     * слева столбец операторов, справа — стереть, дата и высокая кнопка подтверждения.
+     * A custom numeric keypad with a calculator - the same layout as in 1Money:
+     * a column of operators on the left, and backspace, date and a tall confirm button on the right.
      *
-     * Своя, а не системная: она всегда на экране, не перекрывает верх формы
-     * и позволяет посчитать сумму прямо при вводе (например, 12 × 3).
+     * Custom rather than the system keyboard: it is always on screen, does not cover the top of the form
+     * and lets you work the amount out while typing it (12 x 3, for example).
      */
     defineProps<{ canSubmit: boolean }>();
 
@@ -21,29 +21,31 @@
 
 <template>
     <div class="numpad">
-        <button type="button" class="key key--op" aria-label="Разделить" @click="emit('operator', '/')">÷</button>
+        <button type="button" class="key key--op" aria-label="Divide" @click="emit('operator', '/')">÷</button>
         <button type="button" class="key" @click="emit('digit', '7')">7</button>
         <button type="button" class="key" @click="emit('digit', '8')">8</button>
         <button type="button" class="key" @click="emit('digit', '9')">9</button>
-        <button type="button" class="key key--op" aria-label="Стереть" @click="emit('backspace')" @contextmenu.prevent="emit('clear')">⌫</button>
+        <button type="button" class="key key--op" aria-label="Backspace" @click="emit('backspace')" @contextmenu.prevent="emit('clear')">
+            ⌫
+        </button>
 
-        <button type="button" class="key key--op" aria-label="Умножить" @click="emit('operator', '*')">×</button>
+        <button type="button" class="key key--op" aria-label="Multiply" @click="emit('operator', '*')">×</button>
         <button type="button" class="key" @click="emit('digit', '4')">4</button>
         <button type="button" class="key" @click="emit('digit', '5')">5</button>
         <button type="button" class="key" @click="emit('digit', '6')">6</button>
-        <button type="button" class="key key--op ft-icon-btn" aria-label="Выбрать дату" @click="emit('date')">
+        <button type="button" class="key key--op ft-icon-btn" aria-label="Pick a date" @click="emit('date')">
             <el-icon :size="21"><Calendar /></el-icon>
         </button>
 
-        <button type="button" class="key key--op" aria-label="Вычесть" @click="emit('operator', '-')">−</button>
+        <button type="button" class="key key--op" aria-label="Subtract" @click="emit('operator', '-')">−</button>
         <button type="button" class="key" @click="emit('digit', '1')">1</button>
         <button type="button" class="key" @click="emit('digit', '2')">2</button>
         <button type="button" class="key" @click="emit('digit', '3')">3</button>
-        <button type="button" class="key key--submit ft-icon-btn" :disabled="!canSubmit" aria-label="Сохранить" @click="emit('submit')">
+        <button type="button" class="key key--submit ft-icon-btn" :disabled="!canSubmit" aria-label="Save" @click="emit('submit')">
             <el-icon :size="26"><Check /></el-icon>
         </button>
 
-        <button type="button" class="key key--op" aria-label="Прибавить" @click="emit('operator', '+')">+</button>
+        <button type="button" class="key key--op" aria-label="Add" @click="emit('operator', '+')">+</button>
         <button type="button" class="key" @click="emit('digit', '00')">00</button>
         <button type="button" class="key" @click="emit('digit', '0')">0</button>
         <button type="button" class="key" @click="emit('dot')">,</button>
@@ -92,7 +94,7 @@
         font-size: 19px;
     }
 
-    /* Галочка вытянута на две строки — так же, как в 1Money. */
+    /* The check key spans two rows - just like in 1Money. */
     .key--submit {
         grid-column: 5;
         grid-row: 3 / span 2;

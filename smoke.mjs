@@ -1,6 +1,6 @@
 /**
- * Дымовой тест: поднимает preview-сервер, кликает по приложению как пользователь
- * и падает, если в консоли есть ошибки или данные не сохранились.
+ * Smoke test: starts the preview server, clicks through the app like a user
+ * and fails if the console has errors or the data was not persisted.
  */
 import { chromium } from "playwright";
 
@@ -21,16 +21,16 @@ async function run(label, viewport) {
 
     await page.goto(BASE, { waitUntil: "networkidle" });
 
-    // Добавляем расход через быстрый экран: 12,50 на своей клавиатуре + категория из шапки.
-    const addButton = viewport.width < 900 ? page.locator(".app__fab") : page.getByRole("button", { name: "Добавить операцию" });
+    // Add an expense through the quick screen: 12.50 on the custom keypad + a category from the header.
+    const addButton = viewport.width < 900 ? page.locator(".app__fab") : page.getByRole("button", { name: "Add transaction" });
     await addButton.click();
     await page.waitForTimeout(300);
     await page.locator(".head__half--right").click();
     await page.waitForTimeout(300);
     await page.locator(".picker .tile").first().click();
     await page.waitForTimeout(400);
-    // У группы с подкатегориями окно остаётся открытым — подтверждаем выбор «Всей группы».
-    const wholeGroup = page.locator(".picker .tile", { hasText: "Вся группа" });
+    // For a group with subcategories the sheet stays open - confirm by picking "Whole group".
+    const wholeGroup = page.locator(".picker .tile", { hasText: "Whole group" });
     if (await wholeGroup.count()) {
         await wholeGroup.click();
     }
@@ -38,27 +38,27 @@ async function run(label, viewport) {
     for (const key of ["1", "2", ",", "5", "0"]) {
         await page.getByRole("button", { name: key, exact: true }).click();
     }
-    await page.getByRole("button", { name: "Сохранить" }).click();
+    await page.getByRole("button", { name: "Save" }).click();
     await page.waitForTimeout(400);
 
     const listed = await page.locator(".tx-row").count();
     if (listed < 1) {
-        errors.push(`[${label}] операция не появилась в списке`);
+        errors.push(`[${label}] the transaction did not appear in the list`);
     }
 
-    // Проверяем, что запись реально ушла в localStorage.
+    // Check that the record really made it into localStorage.
     const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("finance-tracker:transactions") ?? "[]"));
     if (!stored.length || stored[0].amount !== 12.5) {
-        errors.push(`[${label}] localStorage: ожидали сумму 12.5, получили ${JSON.stringify(stored)}`);
+        errors.push(`[${label}] localStorage: expected the amount 12.5, got ${JSON.stringify(stored)}`);
     }
 
-    // Проходим по всем разделам и смотрим, не падает ли что-нибудь.
+    // Walk through every section and see whether anything breaks.
     for (const path of ["#/accounts", "#/categories", "#/transactions", "#/budget", "#/overview", "#/manage", "#/settings"]) {
         await page.goto(`${BASE}/${path}`, { waitUntil: "networkidle" });
         await page.waitForTimeout(500);
     }
 
-    // Кольцо категорий и график динамики должны отрисоваться после появления данных.
+    // The category ring and the trend chart must render once there is data.
     for (const [path, expected] of [
         ["#/categories", 1],
         ["#/overview", 1],
@@ -67,15 +67,15 @@ async function run(label, viewport) {
         await page.waitForTimeout(900);
         const charts = await page.locator(".apexcharts-canvas").count();
         if (charts < expected) {
-            errors.push(`[${label}] ${path}: отрисовано графиков ${charts}, ожидали ${expected}`);
+            errors.push(`[${label}] ${path}: ${charts} charts rendered, expected ${expected}`);
         }
     }
 
-    // Перезагрузка — данные должны пережить закрытие вкладки.
+    // A reload - the data must survive closing the tab.
     await page.goto(BASE, { waitUntil: "networkidle" });
     await page.waitForTimeout(400);
     if ((await page.locator(".tx-row").count()) < 1) {
-        errors.push(`[${label}] после перезагрузки операции пропали`);
+        errors.push(`[${label}] the transactions disappeared after a reload`);
     }
 
     await page.screenshot({ path: `shot-${label}.png`, fullPage: true });
@@ -88,7 +88,7 @@ await run("mobile", { width: 390, height: 844 });
 await browser.close();
 
 if (errors.length) {
-    console.error("ПРОВАЛ:\n" + errors.join("\n"));
+    console.error("FAILED:\n" + errors.join("\n"));
     process.exit(1);
 }
-console.log("Дымовой тест пройден: десктоп и мобильный макет, данные сохраняются.");
+console.log("Smoke test passed: desktop and mobile layout, data is persisted.");

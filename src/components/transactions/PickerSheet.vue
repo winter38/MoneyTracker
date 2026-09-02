@@ -6,8 +6,8 @@
     import { iconTint } from "@/utils/color";
 
     /**
-     * Всплывающий выбор счёта или категории — открывается тапом по цветной шапке
-     * экрана добавления, как в 1Money.
+     * A popup account or category picker - opened by tapping the colored header
+     * of the add screen, as in 1Money.
      */
     const props = defineProps<{
         open: boolean;
@@ -36,7 +36,7 @@
             <section class="picker" role="dialog" aria-modal="true">
                 <header class="picker__head">
                     <span class="picker__title">{{ title }}</span>
-                    <button type="button" class="picker__close ft-icon-btn" aria-label="Закрыть" @click="emit('close')">
+                    <button type="button" class="picker__close ft-icon-btn" aria-label="Close" @click="emit('close')">
                         <el-icon :size="18"><Close /></el-icon>
                     </button>
                 </header>

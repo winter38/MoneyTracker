@@ -12,12 +12,12 @@ export const useBudgetsStore = defineStore("budgets", () => {
 
     watch(items, (value) => saveState(STORAGE_KEY, value), { deep: true });
 
-    /** Запланированная сумма по группе; 0 — план не задан. */
+    /** The planned amount for a group; 0 means no plan is set. */
     function amountFor(groupId: string): number {
         return items.value.find((item) => item.groupId === groupId)?.amount ?? 0;
     }
 
-    /** Ставит план; ноль или отрицательное значение удаляет запись. */
+    /** Sets a plan; zero or a negative value removes the entry. */
     function set(groupId: string, amount: number): void {
         const value = round2(Math.max(0, amount));
         const index = items.value.findIndex((item) => item.groupId === groupId);
@@ -34,7 +34,7 @@ export const useBudgetsStore = defineStore("budgets", () => {
         }
     }
 
-    /** Суммарный план по списку групп — используется в итогах вкладки «Бюджет». */
+    /** The total plan across a list of groups - used in the Budget tab totals. */
     function totalFor(groupIds: string[]): number {
         return round2(groupIds.reduce((acc, groupId) => acc + amountFor(groupId), 0));
     }

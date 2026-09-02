@@ -37,14 +37,14 @@
 
     function submit(): void {
         if (!form.name.trim()) {
-            ElMessage.warning("Введите название счёта");
+            ElMessage.warning("Enter an account name");
             return;
         }
         const payload = {
             name: form.name.trim(),
             icon: form.icon,
             color: form.color,
-            // Стартовый остаток может быть отрицательным (кредитка), поэтому знак сохраняем.
+            // The initial balance can be negative (a credit card), so the sign is kept.
             initialBalance: parseAmount(form.initialBalance) * (String(form.initialBalance).trim().startsWith("-") ? -1 : 1),
         };
         if (editingId.value) {
@@ -58,14 +58,14 @@
     async function confirmRemove(account: Account): Promise<void> {
         try {
             await ElMessageBox.confirm(
-                `Удалить счёт «${account.name}» вместе со всеми его операциями? Действие необратимо — если нужна только очистка из списков, используйте архив.`,
-                "Удаление счёта",
-                { type: "warning", confirmButtonText: "Удалить", cancelButtonText: "Отмена" },
+                `Delete the account "${account.name}" together with all of its transactions? This cannot be undone - if you only want it out of the lists, use the archive.`,
+                "Delete account",
+                { type: "warning", confirmButtonText: "Delete", cancelButtonText: "Cancel" },
             );
             accounts.remove(account.id);
-            ElMessage.success("Счёт удалён");
+            ElMessage.success("Account deleted");
         } catch {
-            // Пользователь отменил — ничего не делаем.
+            // The user cancelled - do nothing.
         }
     }
 </script>
@@ -73,51 +73,53 @@
 <template>
     <div class="panel">
         <div class="panel__head">
-            <el-button type="primary" @click="openNew">Добавить счёт</el-button>
+            <el-button type="primary" @click="openNew">Add account</el-button>
         </div>
 
         <div class="ft-card ft-card--flush">
-            <p v-if="!accounts.all.length" class="ft-empty">Счетов пока нет</p>
+            <p v-if="!accounts.all.length" class="ft-empty">No accounts yet</p>
             <div v-for="account in accounts.all" :key="account.id" class="row" :class="{ 'row--archived': account.archived }">
                 <span class="row__icon" :style="iconTint(account.color)">{{ account.icon }}</span>
                 <div class="row__text">
                     <span class="row__name">{{ account.name }}</span>
                     <span v-if="account.initialBalance !== 0 || account.archived" class="ft-muted row__hint">
-                        <template v-if="account.initialBalance !== 0">старт {{ settings.money(account.initialBalance) }}</template>
-                        <template v-if="account.archived"> · в архиве</template>
+                        <template v-if="account.initialBalance !== 0">start {{ settings.money(account.initialBalance) }}</template>
+                        <template v-if="account.archived"> - archived</template>
                     </span>
                 </div>
                 <span class="ft-amount">{{ settings.money(accounts.balanceOf(account.id)) }}</span>
                 <el-dropdown trigger="click">
-                    <el-button link><el-icon :size="20"><MoreFilled /></el-icon></el-button>
+                    <el-button link
+                        ><el-icon :size="20"><MoreFilled /></el-icon
+                    ></el-button>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item @click="openEdit(account)">Изменить</el-dropdown-item>
+                            <el-dropdown-item @click="openEdit(account)">Edit</el-dropdown-item>
                             <el-dropdown-item @click="accounts.update(account.id, { archived: !account.archived })">
-                                {{ account.archived ? "Вернуть из архива" : "В архив" }}
+                                {{ account.archived ? "Restore from archive" : "Archive" }}
                             </el-dropdown-item>
-                            <el-dropdown-item divided @click="confirmRemove(account)">Удалить</el-dropdown-item>
+                            <el-dropdown-item divided @click="confirmRemove(account)">Delete</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
             </div>
         </div>
 
-        <el-dialog v-model="dialogVisible" :title="editingId ? 'Счёт' : 'Новый счёт'" width="420px" append-to-body>
-            <!-- Превью: цвет и иконка сразу показаны так, как счёт выглядит в списке. -->
+        <el-dialog v-model="dialogVisible" :title="editingId ? 'Account' : 'New account'" width="420px" append-to-body>
+            <!-- Preview: the color and icon are shown exactly as the account looks in the list. -->
             <div class="preview">
                 <span class="preview__icon" :style="iconTint(form.color)">{{ form.icon }}</span>
                 <div class="preview__text">
-                    <strong>{{ form.name.trim() || "Новый счёт" }}</strong>
-                    <span class="ft-muted">старт {{ settings.money(parseAmount(form.initialBalance)) }}</span>
+                    <strong>{{ form.name.trim() || "New account" }}</strong>
+                    <span class="ft-muted">start {{ settings.money(parseAmount(form.initialBalance)) }}</span>
                 </div>
             </div>
 
             <el-form label-position="top">
-                <el-form-item label="Название">
-                    <el-input v-model="form.name" placeholder="Например, Карта Revolut" maxlength="40" />
+                <el-form-item label="Name">
+                    <el-input v-model="form.name" placeholder="For example, Revolut card" maxlength="40" />
                 </el-form-item>
-                <el-form-item label="Иконка">
+                <el-form-item label="Icon">
                     <div class="picker">
                         <button
                             v-for="icon in ICONS"
@@ -132,7 +134,7 @@
                         </button>
                     </div>
                 </el-form-item>
-                <el-form-item label="Цвет">
+                <el-form-item label="Color">
                     <div class="picker">
                         <button
                             v-for="color in PALETTE"
@@ -146,13 +148,13 @@
                         />
                     </div>
                 </el-form-item>
-                <el-form-item label="Стартовый остаток">
+                <el-form-item label="Initial balance">
                     <el-input v-model="form.initialBalance" inputmode="decimal" placeholder="0.00" />
                 </el-form-item>
             </el-form>
             <template #footer>
-                <el-button @click="dialogVisible = false">Отмена</el-button>
-                <el-button type="primary" @click="submit">Сохранить</el-button>
+                <el-button @click="dialogVisible = false">Cancel</el-button>
+                <el-button type="primary" @click="submit">Save</el-button>
             </template>
         </el-dialog>
     </div>
@@ -180,7 +182,7 @@
         border-top: 1px solid var(--ft-border);
     }
 
-    /* Плотный цветной квадрат — так счета отличаются от круглых иконок категорий. */
+    /* A solid colored square - this is how accounts differ from the round category icons. */
     .row__icon {
         display: inline-flex;
         align-items: center;

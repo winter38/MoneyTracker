@@ -5,11 +5,11 @@
     import { useCategoriesStore } from "@/stores/categories";
 
     /**
-     * Компактный выбор категории списком — для форм, где плитка избыточна
-     * (например, правила повторяющихся операций).
+     * A compact list-style category picker - for forms where the tile grid is overkill
+     * (recurring transaction rules, for example).
      */
     const props = defineProps<{
-        /** Путь [groupId] или [groupId, subcategoryId]. */
+        /** The path [groupId] or [groupId, subcategoryId]. */
         modelValue: string[];
         kind: CategoryKind;
         placeholder?: string;
@@ -39,7 +39,7 @@
         class="category-picker"
         :options="options"
         :props="{ checkStrictly: true, expandTrigger: 'hover' }"
-        :placeholder="placeholder ?? 'Категория'"
+        :placeholder="placeholder ?? 'Category'"
         clearable
         filterable
     />

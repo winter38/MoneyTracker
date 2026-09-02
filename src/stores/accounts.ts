@@ -19,7 +19,7 @@ export const useAccountsStore = defineStore("accounts", () => {
         return id ? items.value.find((account) => account.id === id) : undefined;
     }
 
-    /** Текущий остаток: стартовый баланс плюс движение по всем операциям счёта. */
+    /** Current balance: the initial balance plus the movement across all of the account transactions. */
     function balanceOf(accountId: string): number {
         const account = byId(accountId);
         if (!account) {
@@ -50,8 +50,8 @@ export const useAccountsStore = defineStore("accounts", () => {
     }
 
     /**
-     * Удаляет счёт вместе с его операциями.
-     * Для сохранения истории лучше архивировать — см. `update(id, { archived: true })`.
+     * Deletes an account together with its transactions.
+     * To keep the history, archiving is better - see `update(id, { archived: true })`.
      */
     function remove(id: string): void {
         const transactions = useTransactionsStore();

@@ -12,7 +12,7 @@
 
     const props = defineProps<{
         items: Transaction[];
-        /** Показывать итог по каждому дню справа от даты. */
+        /** Show the total for each day to the right of the date. */
         showDayTotals?: boolean;
         emptyText?: string;
     }>();
@@ -26,7 +26,7 @@
 
     const days = computed(() => transactions.groupByDay(props.items));
 
-    /** Иконка строки: эмодзи категории, а для перевода — стрелка. */
+    /** The row icon: the category emoji, or an arrow for a transfer. */
     function iconFor(tx: Transaction): string {
         if (tx.kind === "transfer") {
             return "⇄";
@@ -60,7 +60,7 @@
         return categories.groupById(tx.groupId)?.color ?? "var(--ft-text-muted)";
     }
 
-    /** Итог дня: доходы минус расходы, переводы не влияют. */
+    /** The day total: income minus expenses; transfers do not count. */
     function dayTotal(items: Transaction[]): number {
         return round2(
             items.reduce((acc, tx) => {
@@ -78,7 +78,7 @@
 
 <template>
     <div class="tx-list">
-        <p v-if="!days.length" class="ft-empty">{{ emptyText ?? "Операций пока нет" }}</p>
+        <p v-if="!days.length" class="ft-empty">{{ emptyText ?? "No transactions yet" }}</p>
 
         <section v-for="day in days" :key="day.date" class="tx-list__day">
             <header class="tx-list__day-head">

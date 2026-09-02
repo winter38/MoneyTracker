@@ -35,7 +35,11 @@
 
     function openNewGroup(): void {
         editingGroupId.value = null;
-        Object.assign(groupForm, { name: "", icon: kind.value === "expense" ? "📦" : "💰", color: PALETTE[categories.groups.length % PALETTE.length] });
+        Object.assign(groupForm, {
+            name: "",
+            icon: kind.value === "expense" ? "📦" : "💰",
+            color: PALETTE[categories.groups.length % PALETTE.length],
+        });
         groupDialog.value = true;
     }
 
@@ -47,7 +51,7 @@
 
     function submitGroup(): void {
         if (!groupForm.name.trim()) {
-            ElMessage.warning("Введите название группы");
+            ElMessage.warning("Enter a group name");
             return;
         }
         const payload = { name: groupForm.name.trim(), icon: groupForm.icon, color: groupForm.color };
@@ -62,14 +66,14 @@
     async function removeGroup(group: CategoryGroup): Promise<void> {
         try {
             await ElMessageBox.confirm(
-                `Удалить группу «${group.name}» и все её подкатегории? Операции останутся, но потеряют категорию.`,
-                "Удаление группы",
-                { type: "warning", confirmButtonText: "Удалить", cancelButtonText: "Отмена" },
+                `Delete the group "${group.name}" and all of its subcategories? The transactions stay, but lose their category.`,
+                "Delete group",
+                { type: "warning", confirmButtonText: "Delete", cancelButtonText: "Cancel" },
             );
             categories.removeGroup(group.id);
-            ElMessage.success("Группа удалена");
+            ElMessage.success("Group deleted");
         } catch {
-            // Отмена пользователем.
+            // Cancelled by the user.
         }
     }
 
@@ -89,7 +93,7 @@
     function submitSub(): void {
         const name = subName.value.trim();
         if (!name) {
-            ElMessage.warning("Введите название подкатегории");
+            ElMessage.warning("Enter a subcategory name");
             return;
         }
         if (editingSubId.value) {
@@ -108,15 +112,15 @@
             <el-segmented
                 v-model="kind"
                 :options="[
-                    { label: 'Расходы', value: 'expense' },
-                    { label: 'Доходы', value: 'income' },
+                    { label: 'Expenses', value: 'expense' },
+                    { label: 'Income', value: 'income' },
                 ]"
             />
-            <el-button type="primary" @click="openNewGroup">Добавить группу</el-button>
+            <el-button type="primary" @click="openNewGroup">Add group</el-button>
         </div>
 
         <div class="ft-card ft-card--flush">
-            <p v-if="!categories.tree(kind).length" class="ft-empty">Групп пока нет</p>
+            <p v-if="!categories.tree(kind).length" class="ft-empty">No groups yet</p>
 
             <div v-for="node in categories.tree(kind)" :key="node.group.id" class="group">
                 <div class="group__head">
@@ -128,12 +132,14 @@
                     </button>
 
                     <el-dropdown trigger="click">
-                        <el-button link><el-icon :size="20"><MoreFilled /></el-icon></el-button>
+                        <el-button link
+                            ><el-icon :size="20"><MoreFilled /></el-icon
+                        ></el-button>
                         <template #dropdown>
                             <el-dropdown-menu>
-                                <el-dropdown-item @click="openNewSub(node.group.id)">Добавить подкатегорию</el-dropdown-item>
-                                <el-dropdown-item @click="openEditGroup(node.group)">Изменить</el-dropdown-item>
-                                <el-dropdown-item divided @click="removeGroup(node.group)">Удалить</el-dropdown-item>
+                                <el-dropdown-item @click="openNewSub(node.group.id)">Add subcategory</el-dropdown-item>
+                                <el-dropdown-item @click="openEditGroup(node.group)">Edit</el-dropdown-item>
+                                <el-dropdown-item divided @click="removeGroup(node.group)">Delete</el-dropdown-item>
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
@@ -143,31 +149,31 @@
                     <div v-for="child in node.children" :key="child.id" class="child">
                         <span class="child__dot" :style="{ background: node.group.color }" />
                         <span class="child__name">{{ child.name }}</span>
-                        <el-button link size="small" @click="openEditSub(child.id, child.name)">Изменить</el-button>
-                        <el-button link size="small" type="danger" @click="categories.removeSubcategory(child.id)">Удалить</el-button>
+                        <el-button link size="small" @click="openEditSub(child.id, child.name)">Edit</el-button>
+                        <el-button link size="small" type="danger" @click="categories.removeSubcategory(child.id)">Delete</el-button>
                     </div>
                     <el-button link type="primary" size="small" class="child__add" @click="openNewSub(node.group.id)">
-                        + Добавить подкатегорию
+                        + Add subcategory
                     </el-button>
                 </div>
             </div>
         </div>
 
-        <el-dialog v-model="groupDialog" :title="editingGroupId ? 'Группа' : 'Новая группа'" width="420px" append-to-body>
-            <!-- Превью: сразу видно, как категория будет выглядеть в списках и в кольце. -->
+        <el-dialog v-model="groupDialog" :title="editingGroupId ? 'Group' : 'New group'" width="420px" append-to-body>
+            <!-- Preview: shows at once how the category will look in the lists and in the ring. -->
             <div class="preview">
                 <span class="preview__icon" :style="iconTint(groupForm.color)">{{ groupForm.icon }}</span>
                 <div class="preview__text">
-                    <strong>{{ groupForm.name.trim() || "Новая группа" }}</strong>
-                    <span class="ft-muted">{{ kind === "expense" ? "Расходы" : "Доходы" }}</span>
+                    <strong>{{ groupForm.name.trim() || "New group" }}</strong>
+                    <span class="ft-muted">{{ kind === "expense" ? "Expenses" : "Income" }}</span>
                 </div>
             </div>
 
             <el-form label-position="top">
-                <el-form-item label="Название">
-                    <el-input v-model="groupForm.name" maxlength="40" placeholder="Например, Продукты" />
+                <el-form-item label="Name">
+                    <el-input v-model="groupForm.name" maxlength="40" placeholder="For example, Groceries" />
                 </el-form-item>
-                <el-form-item label="Иконка">
+                <el-form-item label="Icon">
                     <div class="picker">
                         <button
                             v-for="icon in ICONS"
@@ -175,14 +181,16 @@
                             type="button"
                             class="picker__item"
                             :class="{ 'picker__item--active': groupForm.icon === icon }"
-                            :style="groupForm.icon === icon ? { borderColor: groupForm.color, background: `${groupForm.color}22` } : undefined"
+                            :style="
+                                groupForm.icon === icon ? { borderColor: groupForm.color, background: `${groupForm.color}22` } : undefined
+                            "
                             @click="groupForm.icon = icon"
                         >
                             {{ icon }}
                         </button>
                     </div>
                 </el-form-item>
-                <el-form-item label="Цвет">
+                <el-form-item label="Color">
                     <div class="picker">
                         <button
                             v-for="color in PALETTE"
@@ -198,16 +206,16 @@
                 </el-form-item>
             </el-form>
             <template #footer>
-                <el-button @click="groupDialog = false">Отмена</el-button>
-                <el-button type="primary" @click="submitGroup">Сохранить</el-button>
+                <el-button @click="groupDialog = false">Cancel</el-button>
+                <el-button type="primary" @click="submitGroup">Save</el-button>
             </template>
         </el-dialog>
 
-        <el-dialog v-model="subDialog" :title="editingSubId ? 'Подкатегория' : 'Новая подкатегория'" width="380px" append-to-body>
-            <el-input v-model="subName" maxlength="40" placeholder="Название" @keyup.enter="submitSub" />
+        <el-dialog v-model="subDialog" :title="editingSubId ? 'Subcategory' : 'New subcategory'" width="380px" append-to-body>
+            <el-input v-model="subName" maxlength="40" placeholder="Name" @keyup.enter="submitSub" />
             <template #footer>
-                <el-button @click="subDialog = false">Отмена</el-button>
-                <el-button type="primary" @click="submitSub">Сохранить</el-button>
+                <el-button @click="subDialog = false">Cancel</el-button>
+                <el-button type="primary" @click="submitSub">Save</el-button>
             </template>
         </el-dialog>
     </div>

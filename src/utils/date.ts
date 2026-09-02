@@ -1,6 +1,6 @@
 import type { RecurrencePeriod } from "@/types/models";
 
-/** Дата в формате YYYY-MM-DD в локальной таймзоне (не UTC — иначе «уезжает» день). */
+/** A YYYY-MM-DD date in the local time zone (not UTC - otherwise the day drifts). */
 export function toISODate(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -8,7 +8,7 @@ export function toISODate(date: Date): string {
     return `${year}-${month}-${day}`;
 }
 
-/** Разбирает YYYY-MM-DD в локальную дату (полдень — чтобы переход на летнее время не сдвигал день). */
+/** Parses YYYY-MM-DD into a local date (at noon, so a DST switch does not shift the day). */
 export function fromISODate(iso: string): Date {
     const [year, month, day] = iso.split("-").map(Number);
     return new Date(year, (month ?? 1) - 1, day ?? 1, 12, 0, 0);
@@ -18,25 +18,25 @@ export function today(): string {
     return toISODate(new Date());
 }
 
-/** Вчерашняя дата — быстрая кнопка в выборе даты. */
+/** Yesterday's date - a shortcut button in the date picker. */
 export function yesterday(): string {
     const date = new Date();
     date.setDate(date.getDate() - 1);
     return toISODate(date);
 }
 
-/** Суббота или воскресенье. */
+/** Saturday or Sunday. */
 export function isWeekend(date: Date): boolean {
     const day = date.getDay();
     return day === 0 || day === 6;
 }
 
-/** Ключ месяца YYYY-MM — используется для группировки в отчётах. */
+/** A YYYY-MM month key - used for grouping in reports. */
 export function monthKey(iso: string): string {
     return iso.slice(0, 7);
 }
 
-/** Первый день месяца, к которому относится дата, с учётом дня начала расчётного периода. */
+/** The first day of the month a date belongs to, honouring the billing period start day. */
 export function startOfPeriod(iso: string, monthStartDay: number): string {
     const date = fromISODate(iso);
     if (date.getDate() < monthStartDay) {
@@ -46,7 +46,7 @@ export function startOfPeriod(iso: string, monthStartDay: number): string {
     return toISODate(date);
 }
 
-/** Конец расчётного периода (включительно). */
+/** The end of the billing period (inclusive). */
 export function endOfPeriod(iso: string, monthStartDay: number): string {
     const start = fromISODate(startOfPeriod(iso, monthStartDay));
     start.setMonth(start.getMonth() + 1);
@@ -54,7 +54,7 @@ export function endOfPeriod(iso: string, monthStartDay: number): string {
     return toISODate(start);
 }
 
-/** Сдвигает дату на N периодов вперёд. */
+/** Shifts a date forward by N periods. */
 export function addPeriod(iso: string, period: RecurrencePeriod, interval: number): string {
     const date = fromISODate(iso);
     switch (period) {
@@ -63,7 +63,7 @@ export function addPeriod(iso: string, period: RecurrencePeriod, interval: numbe
             break;
         case "weekdays":
         case "weekends": {
-            // Шагаем по одному дню, пока не попадём в нужный тип дня (пн–пт либо сб–вс).
+            // Step one day at a time until we land on the wanted kind of day (Mon-Fri or Sat-Sun).
             const wantsWeekend = period === "weekends";
             do {
                 date.setDate(date.getDate() + 1);
@@ -77,7 +77,7 @@ export function addPeriod(iso: string, period: RecurrencePeriod, interval: numbe
             const targetDay = date.getDate();
             date.setDate(1);
             date.setMonth(date.getMonth() + interval);
-            // Если в целевом месяце нет такого числа (31-е в феврале) — берём последний день.
+            // If the target month has no such day (the 31st in February) - take its last day.
             const daysInTarget = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
             date.setDate(Math.min(targetDay, daysInTarget));
             break;
@@ -89,7 +89,7 @@ export function addPeriod(iso: string, period: RecurrencePeriod, interval: numbe
     return toISODate(date);
 }
 
-/** Человекочитаемая дата: «23 авг 2026». */
+/** A human-readable date: "23 Aug 2026". */
 export function formatDate(iso: string, locale: string): string {
     try {
         return fromISODate(iso).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
@@ -98,16 +98,16 @@ export function formatDate(iso: string, locale: string): string {
     }
 }
 
-/** Заголовок дня в списке операций: «Сегодня», «Вчера» или дата. */
+/** A day heading in the transaction list: "Today", "Yesterday" or a date. */
 export function formatDayHeading(iso: string, locale: string): string {
     const now = new Date();
     if (iso === toISODate(now)) {
-        return "Сегодня";
+        return "Today";
     }
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
     if (iso === toISODate(yesterday)) {
-        return "Вчера";
+        return "Yesterday";
     }
     try {
         return fromISODate(iso).toLocaleDateString(locale, { day: "numeric", month: "long", weekday: "short" });
@@ -116,7 +116,7 @@ export function formatDayHeading(iso: string, locale: string): string {
     }
 }
 
-/** Подпись месяца для графиков: «авг 26». */
+/** A month label for charts: "Aug 26". */
 export function formatMonthLabel(key: string, locale: string): string {
     try {
         const [year, month] = key.split("-").map(Number);
@@ -126,7 +126,7 @@ export function formatMonthLabel(key: string, locale: string): string {
     }
 }
 
-/** Список ключей месяцев от старого к новому, включая пустые месяцы между ними. */
+/** Month keys from oldest to newest, including the empty months in between. */
 export function monthRange(fromKey: string, toKey: string): string[] {
     const [fromYear, fromMonth] = fromKey.split("-").map(Number);
     const [toYear, toMonth] = toKey.split("-").map(Number);

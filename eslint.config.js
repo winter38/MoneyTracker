@@ -6,7 +6,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
     { ignores: ["dist/**", "node_modules/**"] },
-    // smoke.mjs запускается через Node, а не в браузере.
+    // smoke.mjs runs through Node, not in a browser.
     { files: ["smoke.mjs"], languageOptions: { globals: { process: "readonly", console: "readonly" } } },
     eslint.configs.recommended,
     ...tseslint.configs.recommended,

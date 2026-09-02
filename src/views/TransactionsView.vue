@@ -42,21 +42,18 @@
         return { expense, income, count: filtered.value.length };
     });
 
-    /** Сколько фильтров задано — цифра на кнопке «Фильтры». */
+    /** How many filters are set - the number on the "Filters" button. */
     const activeCount = computed(
-        () =>
-            filters.kinds.length +
-            filters.accountIds.length +
-            filters.groupIds.length +
-            (filters.range ? 1 : 0),
+        () => filters.kinds.length + filters.accountIds.length + filters.groupIds.length + (filters.range ? 1 : 0),
     );
 
-    /** На узком экране фильтры свёрнуты: иначе они занимают пол-экрана. */
+    /** On a narrow screen the filters are collapsed: otherwise they take up half the screen. */
     const { isMobile } = useBreakpoint();
     const filtersOpen = ref(false);
 
     const hasFilters = computed(
-        () => filters.kinds.length > 0 || filters.accountIds.length > 0 || filters.groupIds.length > 0 || !!filters.range || !!filters.search,
+        () =>
+            filters.kinds.length > 0 || filters.accountIds.length > 0 || filters.groupIds.length > 0 || !!filters.range || !!filters.search,
     );
 
     function resetFilters(): void {
@@ -70,58 +67,70 @@
 
 <template>
     <div class="transactions">
-        <h2 class="transactions__title">Операции</h2>
+        <h2 class="transactions__title">Transactions</h2>
 
         <div class="ft-card transactions__filters">
             <div class="transactions__search-row">
-                <el-input v-model="filters.search" placeholder="Поиск по заметке или сумме" clearable class="transactions__search" />
+                <el-input v-model="filters.search" placeholder="Search by note or amount" clearable class="transactions__search" />
                 <el-button v-if="isMobile" class="transactions__toggle" @click="filtersOpen = !filtersOpen">
-                    Фильтры<span v-if="activeCount" class="transactions__badge">{{ activeCount }}</span>
+                    Filters<span v-if="activeCount" class="transactions__badge">{{ activeCount }}</span>
                 </el-button>
             </div>
 
             <template v-if="!isMobile || filtersOpen">
-            <el-select v-model="filters.kinds" multiple collapse-tags placeholder="Тип" class="transactions__filter">
-                <el-option label="Расход" value="expense" />
-                <el-option label="Доход" value="income" />
-                <el-option label="Перевод" value="transfer" />
-            </el-select>
+                <el-select v-model="filters.kinds" multiple collapse-tags placeholder="Type" class="transactions__filter">
+                    <el-option label="Expense" value="expense" />
+                    <el-option label="Income" value="income" />
+                    <el-option label="Transfer" value="transfer" />
+                </el-select>
 
-            <el-select v-model="filters.accountIds" multiple collapse-tags placeholder="Счёт" class="transactions__filter">
-                <el-option v-for="account in accounts.all" :key="account.id" :label="account.name" :value="account.id" />
-            </el-select>
+                <el-select v-model="filters.accountIds" multiple collapse-tags placeholder="Account" class="transactions__filter">
+                    <el-option v-for="account in accounts.all" :key="account.id" :label="account.name" :value="account.id" />
+                </el-select>
 
-            <el-select v-model="filters.groupIds" multiple collapse-tags placeholder="Категория" class="transactions__filter" filterable>
-                <el-option v-for="group in categories.groups" :key="group.id" :label="`${group.icon} ${group.name}`" :value="group.id" />
-            </el-select>
+                <el-select v-model="filters.groupIds" multiple collapse-tags placeholder="Category" class="transactions__filter" filterable>
+                    <el-option
+                        v-for="group in categories.groups"
+                        :key="group.id"
+                        :label="`${group.icon} ${group.name}`"
+                        :value="group.id"
+                    />
+                </el-select>
 
-            <el-date-picker
-                v-model="filters.range"
-                type="daterange"
-                value-format="YYYY-MM-DD"
-                format="DD.MM.YYYY"
-                start-placeholder="С"
-                end-placeholder="По"
-                class="transactions__filter"
-                unlink-panels
-            />
+                <el-date-picker
+                    v-model="filters.range"
+                    type="daterange"
+                    value-format="YYYY-MM-DD"
+                    format="DD.MM.YYYY"
+                    start-placeholder="From"
+                    end-placeholder="To"
+                    class="transactions__filter"
+                    unlink-panels
+                />
 
-            <el-button v-if="hasFilters" link type="primary" @click="resetFilters">Сбросить</el-button>
+                <el-button v-if="hasFilters" link type="primary" @click="resetFilters">Reset</el-button>
             </template>
         </div>
 
-        <!-- Итоги по текущей выборке: три колонки, чтобы строка не переносилась на узком экране. -->
+        <!-- Totals for the current selection: three columns, so the row does not wrap on a narrow screen. -->
         <div class="transactions__summary">
-            <div><span class="ft-muted">Найдено</span><strong class="ft-amount">{{ totals.count }}</strong></div>
-            <div><span class="ft-muted">Расходы</span><strong class="ft-amount ft-amount--expense">{{ settings.money(totals.expense) }}</strong></div>
-            <div><span class="ft-muted">Доходы</span><strong class="ft-amount ft-amount--income">{{ settings.money(totals.income) }}</strong></div>
+            <div>
+                <span class="ft-muted">Found</span><strong class="ft-amount">{{ totals.count }}</strong>
+            </div>
+            <div>
+                <span class="ft-muted">Expenses</span
+                ><strong class="ft-amount ft-amount--expense">{{ settings.money(totals.expense) }}</strong>
+            </div>
+            <div>
+                <span class="ft-muted">Income</span><strong class="ft-amount ft-amount--income">{{ settings.money(totals.income) }}</strong>
+            </div>
         </div>
 
         <div class="ft-card ft-card--flush">
             <TransactionList
                 :items="filtered"
                 show-day-totals
-                empty-text="Ничего не найдено — попробуйте изменить фильтры"
+                empty-text="Nothing found - try changing the filters"
                 @select="(id) => emit('editTransaction', id)"
             />
         </div>

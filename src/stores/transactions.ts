@@ -7,7 +7,7 @@ import { createId } from "@/utils/id";
 import { round2 } from "@/utils/money";
 import { monthKey } from "@/utils/date";
 
-/** Фильтр списка операций. Пустые поля означают «не фильтровать». */
+/** A transaction list filter. Empty fields mean "do not filter". */
 export interface TxFilter {
     kinds?: TxKind[];
     accountIds?: string[];
@@ -22,7 +22,7 @@ export const useTransactionsStore = defineStore("transactions", () => {
 
     watch(items, (value) => saveState(STORAGE_KEYS.transactions, value), { deep: true });
 
-    /** Все операции от новых к старым. */
+    /** All transactions, newest first. */
     const sorted = computed(() =>
         [...items.value].sort((a, b) => (a.date === b.date ? b.createdAt - a.createdAt : a.date < b.date ? 1 : -1)),
     );
@@ -31,7 +31,7 @@ export const useTransactionsStore = defineStore("transactions", () => {
         return items.value.find((tx) => tx.id === id);
     }
 
-    /** Изменение баланса счёта за всю историю: расход и исходящий перевод минусуют, доход и входящий плюсуют. */
+    /** The account balance change over the whole history: expenses and outgoing transfers subtract, income and incoming transfers add. */
     function deltaForAccount(accountId: string): number {
         return round2(
             items.value.reduce((acc, tx) => {
@@ -58,7 +58,7 @@ export const useTransactionsStore = defineStore("transactions", () => {
         return sorted.value.filter((tx) => tx.date >= dateFrom && tx.date <= dateTo);
     }
 
-    /** Сумма расходов/доходов за период. Переводы намеренно не считаются — это не траты. */
+    /** The expense/income total for a period. Transfers are deliberately left out - they are not spending. */
     function totalOf(kind: Exclude<TxKind, "transfer">, dateFrom: string, dateTo: string): number {
         return round2(
             inRange(dateFrom, dateTo)
@@ -73,7 +73,11 @@ export const useTransactionsStore = defineStore("transactions", () => {
             if (options.kinds?.length && !options.kinds.includes(tx.kind)) {
                 return false;
             }
-            if (options.accountIds?.length && !options.accountIds.includes(tx.accountId) && !options.accountIds.includes(tx.toAccountId ?? "")) {
+            if (
+                options.accountIds?.length &&
+                !options.accountIds.includes(tx.accountId) &&
+                !options.accountIds.includes(tx.toAccountId ?? "")
+            ) {
                 return false;
             }
             if (options.groupIds?.length && !options.groupIds.includes(tx.groupId ?? "")) {
@@ -92,7 +96,7 @@ export const useTransactionsStore = defineStore("transactions", () => {
         });
     }
 
-    /** Группировка по дню для списка операций. */
+    /** Grouping by day for the transaction list. */
     function groupByDay(list: Transaction[]): { date: string; items: Transaction[] }[] {
         const map = new Map<string, Transaction[]>();
         list.forEach((tx) => {
@@ -103,7 +107,7 @@ export const useTransactionsStore = defineStore("transactions", () => {
         return [...map.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1)).map(([date, dayItems]) => ({ date, items: dayItems }));
     }
 
-    /** Суммы по месяцам для отчётов: { "2026-08": { expense, income } }. */
+    /** Per-month totals for the reports: { "2026-08": { expense, income } }. */
     function monthlyTotals(): Record<string, { expense: number; income: number }> {
         const result: Record<string, { expense: number; income: number }> = {};
         items.value.forEach((tx) => {
@@ -117,7 +121,7 @@ export const useTransactionsStore = defineStore("transactions", () => {
         return result;
     }
 
-    /** Суммы по группам категорий за период — источник для круговой диаграммы. */
+    /** Per-category-group totals for a period - the source for the pie chart. */
     function totalsByGroup(kind: Exclude<TxKind, "transfer">, dateFrom: string, dateTo: string): Record<string, number> {
         const result: Record<string, number> = {};
         inRange(dateFrom, dateTo)
@@ -129,7 +133,7 @@ export const useTransactionsStore = defineStore("transactions", () => {
         return result;
     }
 
-    /** Суммы по подкатегориям внутри одной группы за период. */
+    /** Per-subcategory totals inside a single group for a period. */
     function totalsBySubcategory(groupId: string, dateFrom: string, dateTo: string): Record<string, number> {
         const result: Record<string, number> = {};
         inRange(dateFrom, dateTo)

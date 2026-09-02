@@ -17,7 +17,7 @@
     const recurring = useRecurringStore();
     const settings = useSettingsStore();
 
-    /** Ключ пресета для уже сохранённого правила; null — нестандартная периодичность. */
+    /** The preset key for an already saved rule; null means a non-standard frequency. */
     function presetKeyOf(period: RecurringRule["period"], interval: number): string | null {
         return RECURRENCE_PRESETS.find((item) => item.period === period && item.interval === interval)?.key ?? null;
     }
@@ -33,7 +33,7 @@
         toAccountId: "",
         categoryPath: [] as string[],
         note: "",
-        /** Ключ пресета повторения из RECURRENCE_PRESETS. */
+        /** The repeat preset key from RECURRENCE_PRESETS. */
         recurrence: "monthly-1",
         startDate: today(),
         endDate: "" as string | "",
@@ -76,20 +76,20 @@
     function submit(): void {
         const amount = parseAmount(form.amount);
         if (!form.title.trim()) {
-            ElMessage.warning("Введите название правила");
+            ElMessage.warning("Enter a rule name");
             return;
         }
         if (amount <= 0) {
-            ElMessage.warning("Введите сумму больше нуля");
+            ElMessage.warning("Enter an amount greater than zero");
             return;
         }
         if (!form.accountId) {
-            ElMessage.warning("Выберите счёт");
+            ElMessage.warning("Pick an account");
             return;
         }
         const preset = presetByKey(form.recurrence);
         if (!preset) {
-            ElMessage.warning("Выберите периодичность");
+            ElMessage.warning("Pick a frequency");
             return;
         }
 
@@ -116,9 +116,9 @@
         }
         dialogVisible.value = false;
 
-        // Если правило уже «просрочено», операции создадутся сразу.
+        // If the rule is already overdue, the transactions are created right away.
         const created = recurring.materializeDue();
-        ElMessage.success(created > 0 ? `Правило сохранено, создано операций: ${created}` : "Правило сохранено");
+        ElMessage.success(created > 0 ? `Rule saved, transactions created: ${created}` : "Rule saved");
     }
 
     function periodLabel(rule: RecurringRule): string {
@@ -129,12 +129,12 @@
 <template>
     <div class="panel">
         <div class="panel__head">
-            <span class="ft-muted">Операции создаются автоматически при открытии приложения</span>
-            <el-button type="primary" @click="openNew">Добавить правило</el-button>
+            <span class="ft-muted">The transactions are created automatically when the app is opened</span>
+            <el-button type="primary" @click="openNew">Add rule</el-button>
         </div>
 
         <div class="ft-card ft-card--flush">
-            <p v-if="!recurring.items.length" class="ft-empty">Правил пока нет — например, подписки или аренда</p>
+            <p v-if="!recurring.items.length" class="ft-empty">No rules yet - subscriptions or rent, for example</p>
 
             <div v-for="rule in recurring.items" :key="rule.id" class="row" :class="{ 'row--off': !rule.active }">
                 <span class="ft-avatar" :style="{ background: 'var(--ft-surface-muted)' }">
@@ -143,7 +143,7 @@
                 <div class="row__text">
                     <span>{{ rule.title }}</span>
                     <span class="ft-muted row__hint">
-                        {{ periodLabel(rule) }} · след. {{ formatDate(rule.nextDate, settings.locale) }} ·
+                        {{ periodLabel(rule) }} · next {{ formatDate(rule.nextDate, settings.locale) }} ·
                         {{ accounts.byId(rule.accountId)?.name ?? "—" }}
                     </span>
                 </div>
@@ -153,46 +153,48 @@
                     @update:model-value="(value: string | number | boolean) => recurring.update(rule.id, { active: Boolean(value) })"
                 />
                 <el-dropdown trigger="click">
-                    <el-button link><el-icon :size="20"><MoreFilled /></el-icon></el-button>
+                    <el-button link
+                        ><el-icon :size="20"><MoreFilled /></el-icon
+                    ></el-button>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item @click="openEdit(rule)">Изменить</el-dropdown-item>
-                            <el-dropdown-item divided @click="recurring.remove(rule.id)">Удалить</el-dropdown-item>
+                            <el-dropdown-item @click="openEdit(rule)">Edit</el-dropdown-item>
+                            <el-dropdown-item divided @click="recurring.remove(rule.id)">Delete</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
             </div>
         </div>
 
-        <el-dialog v-model="dialogVisible" :title="editingId ? 'Правило' : 'Новое правило'" width="460px" append-to-body>
+        <el-dialog v-model="dialogVisible" :title="editingId ? 'Rule' : 'New rule'" width="460px" append-to-body>
             <el-form label-position="top">
-                <el-form-item label="Название">
-                    <el-input v-model="form.title" placeholder="Например, Netflix" maxlength="40" />
+                <el-form-item label="Name">
+                    <el-input v-model="form.title" placeholder="For example, Netflix" maxlength="40" />
                 </el-form-item>
 
-                <el-form-item label="Тип">
+                <el-form-item label="Type">
                     <el-segmented
                         v-model="form.kind"
                         :options="[
-                            { label: 'Расход', value: 'expense' },
-                            { label: 'Доход', value: 'income' },
-                            { label: 'Перевод', value: 'transfer' },
+                            { label: 'Expense', value: 'expense' },
+                            { label: 'Income', value: 'income' },
+                            { label: 'Transfer', value: 'transfer' },
                         ]"
                     />
                 </el-form-item>
 
-                <el-form-item label="Сумма">
+                <el-form-item label="Amount">
                     <el-input v-model="form.amount" inputmode="decimal" placeholder="0.00" />
                 </el-form-item>
 
-                <el-form-item :label="form.kind === 'transfer' ? 'Со счёта' : 'Счёт'">
-                    <el-select v-model="form.accountId" class="control" placeholder="Выберите счёт">
+                <el-form-item :label="form.kind === 'transfer' ? 'From account' : 'Account'">
+                    <el-select v-model="form.accountId" class="control" placeholder="Pick an account">
                         <el-option v-for="account in accounts.active" :key="account.id" :label="account.name" :value="account.id" />
                     </el-select>
                 </el-form-item>
 
-                <el-form-item v-if="form.kind === 'transfer'" label="На счёт">
-                    <el-select v-model="form.toAccountId" class="control" placeholder="Выберите счёт">
+                <el-form-item v-if="form.kind === 'transfer'" label="To account">
+                    <el-select v-model="form.toAccountId" class="control" placeholder="Pick an account">
                         <el-option
                             v-for="account in accounts.active"
                             :key="account.id"
@@ -203,33 +205,46 @@
                     </el-select>
                 </el-form-item>
 
-                <el-form-item v-else label="Категория">
+                <el-form-item v-else label="Category">
                     <CategoryPicker v-model="form.categoryPath" :kind="form.kind === 'income' ? 'income' : 'expense'" />
                 </el-form-item>
 
-                <el-form-item label="Повторение">
+                <el-form-item label="Repeat">
                     <el-select v-model="form.recurrence" class="control">
                         <el-option v-for="preset in RECURRENCE_PRESETS" :key="preset.key" :label="preset.label" :value="preset.key" />
                     </el-select>
                 </el-form-item>
 
                 <div class="row-2">
-                    <el-form-item label="Начало">
-                        <el-date-picker v-model="form.startDate" type="date" value-format="YYYY-MM-DD" format="DD.MM.YYYY" class="control" />
+                    <el-form-item label="Start">
+                        <el-date-picker
+                            v-model="form.startDate"
+                            type="date"
+                            value-format="YYYY-MM-DD"
+                            format="DD.MM.YYYY"
+                            class="control"
+                        />
                     </el-form-item>
-                    <el-form-item label="Окончание (необязательно)">
-                        <el-date-picker v-model="form.endDate" type="date" value-format="YYYY-MM-DD" format="DD.MM.YYYY" class="control" clearable />
+                    <el-form-item label="End (optional)">
+                        <el-date-picker
+                            v-model="form.endDate"
+                            type="date"
+                            value-format="YYYY-MM-DD"
+                            format="DD.MM.YYYY"
+                            class="control"
+                            clearable
+                        />
                     </el-form-item>
                 </div>
 
-                <el-form-item label="Заметка">
-                    <el-input v-model="form.note" placeholder="Необязательно" maxlength="120" />
+                <el-form-item label="Note">
+                    <el-input v-model="form.note" placeholder="Optional" maxlength="120" />
                 </el-form-item>
             </el-form>
 
             <template #footer>
-                <el-button @click="dialogVisible = false">Отмена</el-button>
-                <el-button type="primary" @click="submit">Сохранить</el-button>
+                <el-button @click="dialogVisible = false">Cancel</el-button>
+                <el-button type="primary" @click="submit">Save</el-button>
             </template>
         </el-dialog>
     </div>

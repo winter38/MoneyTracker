@@ -6,13 +6,13 @@
     import { formatDate, today, yesterday } from "@/utils/date";
 
     /**
-     * Лист выбора даты и повторения — открывается кнопкой календаря на клавиатуре,
-     * как в 1Money: быстрые «Вчера/Сегодня», системный календарь и список повторений.
+     * The date and repeat sheet - opened with the calendar key on the keypad,
+     * as in 1Money: quick Yesterday/Today, the system calendar and a list of repeat options.
      */
     const props = defineProps<{
         open: boolean;
         date: string;
-        /** Ключ выбранного повторения из RECURRENCE_PRESETS или null. */
+        /** The key of the selected repeat option from RECURRENCE_PRESETS, or null. */
         recurrence: string | null;
     }>();
 
@@ -24,11 +24,11 @@
 
     const settings = useSettingsStore();
 
-    /** Внутри листа открыт подсписок повторений. */
+    /** Whether the repeat sub-list is open inside the sheet. */
     const showRecurrence = ref(false);
     const dateInput = ref<HTMLInputElement | null>(null);
 
-    const recurrenceLabel = computed(() => presetByKey(props.recurrence)?.label ?? "Не повторять");
+    const recurrenceLabel = computed(() => presetByKey(props.recurrence)?.label ?? "Do not repeat");
 
     function openCalendar(): void {
         const input = dateInput.value;
@@ -57,17 +57,17 @@
     <Teleport to="body">
         <div v-if="open" class="date-overlay" @click.self="emit('close')">
             <section class="date-sheet" role="dialog" aria-modal="true">
-                <!-- Список повторений -->
+                <!-- The list of repeat options -->
                 <template v-if="showRecurrence">
                     <header class="date-sheet__head">
-                        <button type="button" class="date-sheet__back" @click="showRecurrence = false">‹ Назад</button>
-                        <span class="date-sheet__title">Повторение</span>
+                        <button type="button" class="date-sheet__back" @click="showRecurrence = false">‹ Back</button>
+                        <span class="date-sheet__title">Repeat</span>
                     </header>
 
                     <div class="options">
                         <button type="button" class="option" :class="{ 'option--active': !recurrence }" @click="pickRecurrence(null)">
                             <span class="option__mark">{{ !recurrence ? "●" : "○" }}</span>
-                            Не повторять
+                            Do not repeat
                         </button>
                         <button
                             v-for="preset in RECURRENCE_PRESETS"
@@ -83,37 +83,47 @@
                     </div>
                 </template>
 
-                <!-- Основной экран: дата и повторение -->
+                <!-- The main screen: date and repeat -->
                 <template v-else>
                     <header class="date-sheet__head">
-                        <span class="date-sheet__title">Дата</span>
-                        <button type="button" class="date-sheet__close ft-icon-btn" aria-label="Закрыть" @click="emit('close')">
+                        <span class="date-sheet__title">Date</span>
+                        <button type="button" class="date-sheet__close ft-icon-btn" aria-label="Close" @click="emit('close')">
                             <el-icon :size="18"><Close /></el-icon>
                         </button>
                     </header>
 
                     <button type="button" class="big-tile" @click="openCalendar">
                         <el-icon class="big-tile__icon" :size="22"><Calendar /></el-icon>
-                        <span>Выбрать день</span>
+                        <span>Pick a day</span>
                         <span class="ft-muted big-tile__hint">{{ formatDate(date, settings.locale) }}</span>
                     </button>
 
                     <div class="tiles">
-                        <button type="button" class="tile-btn" :class="{ 'tile-btn--active': date === yesterday() }" @click="pick(yesterday())">
+                        <button
+                            type="button"
+                            class="tile-btn"
+                            :class="{ 'tile-btn--active': date === yesterday() }"
+                            @click="pick(yesterday())"
+                        >
                             <el-icon class="tile-btn__icon" :size="20"><Moon /></el-icon>
-                            <span>Вчера</span>
+                            <span>Yesterday</span>
                             <span class="ft-muted tile-btn__hint">{{ formatDate(yesterday(), settings.locale) }}</span>
                         </button>
 
                         <button type="button" class="tile-btn" :class="{ 'tile-btn--active': date === today() }" @click="pick(today())">
                             <el-icon class="tile-btn__icon" :size="20"><Sunny /></el-icon>
-                            <span>Сегодня</span>
+                            <span>Today</span>
                             <span class="ft-muted tile-btn__hint">{{ formatDate(today(), settings.locale) }}</span>
                         </button>
 
-                        <button type="button" class="tile-btn tile-btn--wide" :class="{ 'tile-btn--active': !!recurrence }" @click="showRecurrence = true">
+                        <button
+                            type="button"
+                            class="tile-btn tile-btn--wide"
+                            :class="{ 'tile-btn--active': !!recurrence }"
+                            @click="showRecurrence = true"
+                        >
                             <el-icon class="tile-btn__icon" :size="20"><RefreshRight /></el-icon>
-                            <span>Повторение</span>
+                            <span>Repeat</span>
                             <span class="ft-muted tile-btn__hint">{{ recurrenceLabel }}</span>
                         </button>
                     </div>
@@ -273,7 +283,7 @@
         font-size: 13px;
     }
 
-    /* Нужен только как триггер системного календаря. */
+    /* Only needed as a trigger for the system calendar. */
     .date-sheet__input {
         position: absolute;
         width: 1px;

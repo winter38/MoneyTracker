@@ -13,8 +13,8 @@
     import { iconTint } from "@/utils/color";
 
     /**
-     * Экран «Категории» в духе 1Money: кольцо расходов в центре, иконки категорий
-     * вокруг него, тап по категории сразу открывает добавление операции в неё.
+     * The Categories screen in the spirit of 1Money: the expense ring in the middle, the category
+     * icons around it, and a tap on a category opens the add form for it right away.
      */
     const emit = defineEmits<{ addToCategory: [groupId: string, kind: CategoryKind] }>();
 
@@ -48,7 +48,7 @@
     const expenseTotal = computed(() => transactions.totalOf("expense", period.from, period.to));
     const incomeTotal = computed(() => transactions.totalOf("income", period.from, period.to));
 
-    /** Ненулевые категории для бублика: нули только замусорили бы легенду. */
+    /** Only non-zero categories go into the donut: zeros would just clutter the legend. */
     const charted = computed(() => rows.value.filter((row) => row.spent > 0));
 
     const donutOptions = computed(() => ({
@@ -66,8 +66,8 @@
     const donutSeries = computed(() => charted.value.map((row) => row.spent));
 
     /**
-     * Раскладка кольца: четыре плитки сверху, по одной слева и справа от бублика,
-     * остальные — обычной сеткой ниже.
+     * The ring layout: four tiles on top, one on each side of the donut,
+     * and the rest in a plain grid below.
      */
     function tileStyle(index: number): Record<string, string> | undefined {
         if (isMobile.value === false) {
@@ -90,14 +90,14 @@
     const netto = computed(() => round2(incomeTotal.value - expenseTotal.value));
 
     /**
-     * Размер бублика задаётся числом и тем же числом фиксируется высота контейнера:
-     * если коробка графика и коробка подписей разной высоты, текст в центре «уезжает».
+     * The donut size is given as a number, and the container height is pinned to that same number:
+     * if the chart box and the label box have different heights, the text in the centre drifts.
      */
     const donutSize = computed(() => (isMobile.value ? 210 : 240));
 
     /**
-     * В плитках и в центре кольца мало места: крупные суммы показываем сокращённо
-     * («2,2 млн €»), иначе строки налезают друг на друга.
+     * There is little room in the tiles and in the centre of the ring: large amounts are abbreviated
+     * ("2.2M EUR"), otherwise the lines overlap each other.
      */
     function compactMoney(value: number): string {
         return Math.abs(value) >= 100000 ? `${formatCompact(value, settings.locale)} ${settings.currencySymbol}` : settings.money(value);
@@ -110,11 +110,11 @@
             <el-segmented
                 v-model="kind"
                 :options="[
-                    { label: 'Расходы', value: 'expense' },
-                    { label: 'Доходы', value: 'income' },
+                    { label: 'Expenses', value: 'expense' },
+                    { label: 'Income', value: 'income' },
                 ]"
             />
-            <el-button link type="primary" @click="router.push('/manage')">Настроить</el-button>
+            <el-button link type="primary" @click="router.push('/manage')">Configure</el-button>
         </div>
 
         <div class="ring">
@@ -131,7 +131,7 @@
                 <span class="tile__spent" :style="{ color: row.spent > 0 ? row.color : 'var(--ft-text-muted)' }">
                     {{ compactMoney(row.spent) }}
                 </span>
-                <span v-if="row.planned > 0" class="tile__planned ft-muted">из {{ compactMoney(row.planned) }}</span>
+                <span v-if="row.planned > 0" class="tile__planned ft-muted">of {{ compactMoney(row.planned) }}</span>
             </button>
 
             <div class="ring__center">
@@ -139,7 +139,7 @@
                 <div v-else class="ring__empty" />
 
                 <div class="ring__labels">
-                    <span class="ft-muted">{{ kind === "expense" ? "Расходы" : "Доходы" }}</span>
+                    <span class="ft-muted">{{ kind === "expense" ? "Expenses" : "Income" }}</span>
                     <strong class="ft-amount" :class="kind === 'expense' ? 'ft-amount--expense' : 'ft-amount--income'">
                         {{ compactMoney(kind === "expense" ? expenseTotal : incomeTotal) }}
                     </strong>
@@ -150,8 +150,8 @@
             </div>
         </div>
 
-        <p v-if="!rows.length" class="ft-empty">Категорий нет — добавьте их в «Справочниках»</p>
-        <p v-else class="categories__hint ft-muted">Нажмите на категорию, чтобы записать в неё операцию</p>
+        <p v-if="!rows.length" class="ft-empty">No categories yet - add them in Manage</p>
+        <p v-else class="categories__hint ft-muted">Tap a category to record a transaction in it</p>
     </div>
 </template>
 
@@ -184,7 +184,7 @@
         align-items: start;
     }
 
-    /* Бублик занимает середину сетки, плитки обтекают его слева и справа. */
+    /* The donut takes the middle of the grid, with tiles flowing around it on the left and right. */
     .ring__center {
         grid-column: 2 / 4;
         grid-row: 2 / 4;
@@ -192,7 +192,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        /* Ровно высота графика: подписи лежат поверх этой же коробки. */
+        /* Exactly the chart height: the labels sit on top of this same box. */
         height: var(--donut-size);
     }
 
@@ -218,8 +218,8 @@
     }
 
     /*
-     * Строки не шире хорды «дырки» бублика (диаметр 76% от графика), иначе
-     * длинная сумма вылезает за кольцо. Размер шрифта тоже привязан к диаметру.
+     * The lines are no wider than the chord of the donut hole (76% of the chart diameter), otherwise
+     * a long amount spills outside the ring. The font size is tied to that diameter too.
      */
     .ring__labels > * {
         max-width: calc(var(--donut-size) * 0.62);
@@ -263,7 +263,7 @@
         line-height: 1.25;
         color: var(--ft-text);
         max-width: 100%;
-        /* Две строки вместо обрезки: «Кафе и рестораны» должно читаться целиком. */
+        /* Two lines instead of clipping: "Cafes and restaurants" should be readable in full. */
         display: -webkit-box;
         -webkit-line-clamp: 2;
         line-clamp: 2;
@@ -289,7 +289,7 @@
         line-height: 1;
     }
 
-    /* Суммы не выходят за ширину ячейки — иначе соседние плитки перекрывают друг друга. */
+    /* Amounts stay inside the cell width - otherwise neighbouring tiles overlap. */
     .tile__spent,
     .tile__planned {
         max-width: 100%;
@@ -308,7 +308,7 @@
         font-size: 11px;
     }
 
-    /* На широком экране кольцо не нужно — обычная сетка карточек читается лучше. */
+    /* On a wide screen the ring is unnecessary - a plain card grid reads better. */
     @media (min-width: 900px) {
         .ring {
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));

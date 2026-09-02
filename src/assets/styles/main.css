@@ -1,6 +1,6 @@
 /**
- * Глобальные стили и токены оформления.
- * Переменные продублированы для тёмной темы — Element Plus включает её классом `dark` на <html>.
+ * Global styles and design tokens.
+ * The variables are duplicated for the dark theme - Element Plus enables it with a `dark` class on <html>.
  */
 
 :root {
@@ -19,7 +19,7 @@
     --ft-radius-sm: 10px;
     --ft-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 16px rgba(16, 24, 40, 0.06);
     --ft-nav-height: 60px;
-    /* Минимальный размер кликабельного элемента — палец не попадает по мелочи. */
+    /* The minimum size of a tappable element - a finger cannot hit anything smaller. */
     --ft-tap: 44px;
 }
 
@@ -52,7 +52,12 @@ body {
 body {
     background: var(--ft-page);
     color: var(--ft-text);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family:
+        system-ui,
+        -apple-system,
+        "Segoe UI",
+        Roboto,
+        sans-serif;
     font-size: 15px;
     -webkit-font-smoothing: antialiased;
 }
@@ -61,7 +66,7 @@ body {
     min-height: 100vh;
 }
 
-/* ---------- Общие блоки ---------- */
+/* ---------- Shared blocks ---------- */
 
 .ft-card {
     background: var(--ft-surface);
@@ -111,7 +116,7 @@ body {
     color: var(--ft-transfer);
 }
 
-/* Кружок с эмодзи — визуальный якорь категории или счёта, как в 1Money. */
+/* An emoji circle - the visual anchor of a category or an account, as in 1Money. */
 .ft-avatar {
     display: inline-flex;
     align-items: center;
@@ -155,7 +160,7 @@ body {
     }
 }
 
-/* ---------- Подгонка Element Plus под оформление приложения ---------- */
+/* ---------- Element Plus tweaks to match the app styling ---------- */
 
 .el-card,
 .el-dialog,
@@ -179,13 +184,13 @@ body {
 }
 
 .el-overlay {
-    /* Модалки должны перекрывать нижнюю навигацию на телефоне. */
+    /* Modals must sit above the bottom navigation on a phone. */
     z-index: 2500;
 }
 
 /*
- * На телефоне все элементы управления крупнее: Element Plus по умолчанию делает
- * поля высотой 32px, по такому неудобно попадать пальцем.
+ * On a phone every control is larger: by default Element Plus renders 32px tall
+ * fields, which are awkward to hit with a finger.
  */
 @media (max-width: 899px) {
     .el-button {
@@ -221,9 +226,9 @@ body {
 }
 
 /*
- * Кнопки со значком. Текстовые глифы («+», «✕») центрируются по метрикам шрифта,
- * а не по кнопке, из-за чего «прыгают»; поэтому вместо них используются SVG-иконки
- * Element Plus, а сама кнопка центрирует содержимое флексом.
+ * Icon buttons. Text glyphs ("+", "x") are centred by the font metrics rather than
+ * by the button, which makes them jump around; so Element Plus SVG icons are used
+ * instead, and the button itself centres its content with flexbox.
  */
 .ft-icon-btn {
     display: inline-flex;
@@ -241,7 +246,7 @@ body {
     display: block;
 }
 
-/* Кнопка «⋯» в строках справочников — маленький значок, но крупная зона нажатия. */
+/* The "..." button in the Manage rows - a small glyph, but a large tap area. */
 .el-dropdown > .el-button.is-link {
     min-width: 40px;
     min-height: 40px;
@@ -249,7 +254,7 @@ body {
     color: var(--ft-text-secondary);
 }
 
-/* Заголовок вложенной страницы: кнопка «назад» и название. */
+/* The heading of a sub-page: the back button and the title. */
 .ft-page-head {
     display: flex;
     align-items: center;

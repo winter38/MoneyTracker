@@ -1,11 +1,11 @@
 import { onUnmounted, ref } from "vue";
 
 /**
- * Реактивный флаг «мы на узком экране» — переключает десктопный и мобильный макет.
+ * A reactive "we are on a narrow screen" flag - switches between the desktop and mobile layout.
  *
- * Значение вычисляется синхронно при создании, а не в onMounted: иначе первый кадр
- * рисуется десктопным макетом, а сразу после монтирования всё перестраивается —
- * ApexCharts от такой пересборки на лету падал с ошибкой destroy().
+ * The value is computed synchronously on creation rather than in onMounted: otherwise the first
+ * frame renders with the desktop layout and everything is rebuilt right after mounting -
+ * ApexCharts used to crash with a destroy() error on that kind of live rebuild.
  */
 export function useBreakpoint(query = "(max-width: 899px)") {
     const media = typeof window !== "undefined" ? window.matchMedia(query) : undefined;
