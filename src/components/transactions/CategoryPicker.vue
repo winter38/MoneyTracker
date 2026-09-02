@@ -2,6 +2,7 @@
     import { computed } from "vue";
 
     import type { CategoryKind } from "@/types/models";
+    import AppIcon from "@/components/common/AppIcon.vue";
     import { useCategoriesStore } from "@/stores/categories";
 
     /**
@@ -22,7 +23,9 @@
     const options = computed(() =>
         categories.tree(props.kind).map((node) => ({
             value: node.group.id,
-            label: `${node.group.icon} ${node.group.name}`,
+            label: node.group.name,
+            icon: node.group.icon,
+            color: node.group.color,
             children: node.children.map((child) => ({ value: child.id, label: child.name })),
         })),
     );
@@ -42,11 +45,24 @@
         :placeholder="placeholder ?? 'Category'"
         clearable
         filterable
-    />
+    >
+        <template #default="{ data }">
+            <span class="category-picker__option">
+                <AppIcon v-if="data.icon" :icon="data.icon" :style="{ color: data.color }" />
+                {{ data.label }}
+            </span>
+        </template>
+    </el-cascader>
 </template>
 
 <style scoped>
     .category-picker {
         width: 100%;
+    }
+
+    .category-picker__option {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
 </style>

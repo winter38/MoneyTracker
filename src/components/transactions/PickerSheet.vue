@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import type { CategoryKind } from "@/types/models";
+    import AppIcon from "@/components/common/AppIcon.vue";
     import CategoryGrid from "@/components/transactions/CategoryGrid.vue";
     import { useAccountsStore } from "@/stores/accounts";
     import { useSettingsStore } from "@/stores/settings";
@@ -51,7 +52,7 @@
                         :disabled="account.id === excludeAccountId"
                         @click="emit('pickAccount', account.id)"
                     >
-                        <span class="account__icon" :style="iconTint(account.color)">{{ account.icon }}</span>
+                        <span class="account__icon" :style="iconTint(account.color)"><AppIcon :icon="account.icon" /></span>
                         <span class="account__name">{{ account.name }}</span>
                         <span class="ft-amount">{{ settings.money(accounts.balanceOf(account.id)) }}</span>
                     </button>

@@ -3,9 +3,11 @@
     import { ElMessage, ElMessageBox } from "element-plus";
 
     import type { TxKind } from "@/types/models";
+    import AppIcon from "@/components/common/AppIcon.vue";
     import DateSheet from "@/components/transactions/DateSheet.vue";
     import NumPad from "@/components/transactions/NumPad.vue";
     import PickerSheet from "@/components/transactions/PickerSheet.vue";
+    import { PLACEHOLDER_ICON } from "@/data/icons";
     import { presetByKey } from "@/data/recurrence";
     import { useAccountsStore } from "@/stores/accounts";
     import { useCategoriesStore } from "@/stores/categories";
@@ -186,7 +188,7 @@
             return {
                 caption: "From category",
                 title: group?.name ?? "Pick one",
-                icon: group?.icon ?? "＋",
+                icon: group?.icon ?? PLACEHOLDER_ICON,
                 color: group?.color ?? "#8a909e",
             };
         }
@@ -194,7 +196,7 @@
         return {
             caption: "From account",
             title: account?.name ?? "Pick one",
-            icon: account?.icon ?? "＋",
+            icon: account?.icon ?? PLACEHOLDER_ICON,
             color: account?.color ?? "#8a909e",
         };
     });
@@ -206,12 +208,17 @@
             return {
                 caption: isTransfer.value ? "To account" : "To account",
                 title: account?.name ?? "Pick one",
-                icon: account?.icon ?? "＋",
+                icon: account?.icon ?? PLACEHOLDER_ICON,
                 color: account?.color ?? "#8a909e",
             };
         }
         const group = categories.groupById(form.groupId);
-        return { caption: "To category", title: group?.name ?? "Pick one", icon: group?.icon ?? "＋", color: group?.color ?? "#8a909e" };
+        return {
+            caption: "To category",
+            title: group?.name ?? "Pick one",
+            icon: group?.icon ?? PLACEHOLDER_ICON,
+            color: group?.color ?? "#8a909e",
+        };
     });
 
     const subcategoryName = computed(() => categories.subcategoryById(form.subcategoryId)?.name);
@@ -393,8 +400,8 @@
                         <span class="head__title">{{ rightSide.title }}</span>
                     </button>
 
-                    <span class="head__badge head__badge--left">{{ leftSide.icon }}</span>
-                    <span class="head__badge head__badge--right">{{ rightSide.icon }}</span>
+                    <span class="head__badge head__badge--left"><AppIcon :icon="leftSide.icon" /></span>
+                    <span class="head__badge head__badge--right"><AppIcon :icon="rightSide.icon" /></span>
                 </div>
 
                 <div class="sheet__body">

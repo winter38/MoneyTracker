@@ -2,7 +2,9 @@
     import { computed } from "vue";
     import { useRouter } from "vue-router";
 
+    import AppIcon from "@/components/common/AppIcon.vue";
     import TransactionList from "@/components/transactions/TransactionList.vue";
+    import { UNCATEGORISED_ICON } from "@/data/icons";
     import { useAccountsStore } from "@/stores/accounts";
     import { useCategoriesStore } from "@/stores/categories";
     import { usePeriodStore } from "@/stores/period";
@@ -98,7 +100,7 @@
                 return {
                     id: groupId,
                     name: group?.name ?? "No category",
-                    icon: group?.icon ?? "•",
+                    icon: group?.icon ?? UNCATEGORISED_ICON,
                     color: group?.color ?? "#8a909e",
                     amount,
                     percent: expense.value > 0 ? Math.round((amount / expense.value) * 100) : 0,
@@ -152,7 +154,7 @@
             <h3 class="ft-section-title">Where the money goes</h3>
             <p v-if="!topGroups.length" class="ft-empty">No expenses in this period</p>
             <div v-for="row in topGroups" :key="row.id" class="group-row">
-                <span class="group-row__icon" :style="iconTint(row.color)">{{ row.icon }}</span>
+                <span class="group-row__icon" :style="iconTint(row.color)"><AppIcon :icon="row.icon" /></span>
                 <div class="group-row__body">
                     <div class="group-row__line">
                         <span>{{ row.name }}</span>

@@ -3,6 +3,9 @@
     import { ElMessage, ElMessageBox } from "element-plus";
 
     import type { Account } from "@/types/models";
+    import AppIcon from "@/components/common/AppIcon.vue";
+    import IconPicker from "@/components/common/IconPicker.vue";
+    import { DEFAULT_ACCOUNT_ICON } from "@/data/icons";
     import { PALETTE } from "@/data/seed";
     import { useAccountsStore } from "@/stores/accounts";
     import { useSettingsStore } from "@/stores/settings";
@@ -12,15 +15,13 @@
     const accounts = useAccountsStore();
     const settings = useSettingsStore();
 
-    const ICONS = ["💵", "💳", "🏦", "🐷", "📱", "💼", "🪙", "🎯"];
-
     const dialogVisible = ref(false);
     const editingId = ref<string | null>(null);
-    const form = reactive({ name: "", icon: "💵", color: PALETTE[0] as string, initialBalance: "0" });
+    const form = reactive({ name: "", icon: DEFAULT_ACCOUNT_ICON, color: PALETTE[0] as string, initialBalance: "0" });
 
     function openNew(): void {
         editingId.value = null;
-        Object.assign(form, { name: "", icon: "💵", color: PALETTE[0], initialBalance: "0" });
+        Object.assign(form, { name: "", icon: DEFAULT_ACCOUNT_ICON, color: PALETTE[0], initialBalance: "0" });
         dialogVisible.value = true;
     }
 
@@ -79,7 +80,7 @@
         <div class="ft-card ft-card--flush">
             <p v-if="!accounts.all.length" class="ft-empty">No accounts yet</p>
             <div v-for="account in accounts.all" :key="account.id" class="row" :class="{ 'row--archived': account.archived }">
-                <span class="row__icon" :style="iconTint(account.color)">{{ account.icon }}</span>
+                <span class="row__icon" :style="iconTint(account.color)"><AppIcon :icon="account.icon" /></span>
                 <div class="row__text">
                     <span class="row__name">{{ account.name }}</span>
                     <span v-if="account.initialBalance !== 0 || account.archived" class="ft-muted row__hint">
@@ -108,7 +109,7 @@
         <el-dialog v-model="dialogVisible" :title="editingId ? 'Account' : 'New account'" width="420px" append-to-body>
             <!-- Preview: the color and icon are shown exactly as the account looks in the list. -->
             <div class="preview">
-                <span class="preview__icon" :style="iconTint(form.color)">{{ form.icon }}</span>
+                <span class="preview__icon" :style="iconTint(form.color)"><AppIcon :icon="form.icon" /></span>
                 <div class="preview__text">
                     <strong>{{ form.name.trim() || "New account" }}</strong>
                     <span class="ft-muted">start {{ settings.money(parseAmount(form.initialBalance)) }}</span>
@@ -120,19 +121,7 @@
                     <el-input v-model="form.name" placeholder="For example, Revolut card" maxlength="40" />
                 </el-form-item>
                 <el-form-item label="Icon">
-                    <div class="picker">
-                        <button
-                            v-for="icon in ICONS"
-                            :key="icon"
-                            type="button"
-                            class="picker__item"
-                            :class="{ 'picker__item--active': form.icon === icon }"
-                            :style="form.icon === icon ? { borderColor: form.color, background: `${form.color}22` } : undefined"
-                            @click="form.icon = icon"
-                        >
-                            {{ icon }}
-                        </button>
-                    </div>
+                    <IconPicker v-model="form.icon" :color="form.color" />
                 </el-form-item>
                 <el-form-item label="Color">
                     <div class="picker">
@@ -264,21 +253,6 @@
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-    }
-
-    .picker__item {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        border: 1px solid var(--ft-border);
-        background: var(--ft-surface);
-        font-size: 18px;
-        cursor: pointer;
-    }
-
-    .picker__item--active {
-        border-color: var(--ft-accent);
-        box-shadow: 0 0 0 2px rgba(42, 120, 214, 0.2);
     }
 
     .picker__dot {

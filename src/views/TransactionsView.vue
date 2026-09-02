@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { computed, reactive, ref } from "vue";
 
+    import AppIcon from "@/components/common/AppIcon.vue";
     import TransactionList from "@/components/transactions/TransactionList.vue";
     import type { TxKind } from "@/types/models";
     import { useAccountsStore } from "@/stores/accounts";
@@ -89,12 +90,12 @@
                 </el-select>
 
                 <el-select v-model="filters.groupIds" multiple collapse-tags placeholder="Category" class="transactions__filter" filterable>
-                    <el-option
-                        v-for="group in categories.groups"
-                        :key="group.id"
-                        :label="`${group.icon} ${group.name}`"
-                        :value="group.id"
-                    />
+                    <el-option v-for="group in categories.groups" :key="group.id" :label="group.name" :value="group.id">
+                        <span class="option-row">
+                            <AppIcon :icon="group.icon" :style="{ color: group.color }" />
+                            {{ group.name }}
+                        </span>
+                    </el-option>
                 </el-select>
 
                 <el-date-picker
@@ -194,6 +195,13 @@
     .transactions__filter {
         flex: 1 1 160px;
         min-width: 140px;
+    }
+
+    .option-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 15px;
     }
 
     .transactions__summary {

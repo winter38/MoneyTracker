@@ -26,17 +26,17 @@ interface SeedGroup {
 
 /** The starter set of categories - roughly what any finance tracker starts with. Everything is editable in the Categories section. */
 const SEED_GROUPS: SeedGroup[] = [
-    { name: "Groceries", icon: "🛒", kind: "expense", children: ["Supermarket", "Market", "Delivery"] },
-    { name: "Cafes and restaurants", icon: "☕", kind: "expense", children: ["Coffee", "Lunch", "Bar"] },
-    { name: "Transport", icon: "🚌", kind: "expense", children: ["Public transport", "Taxi", "Fuel", "Parking"] },
-    { name: "Housing", icon: "🏠", kind: "expense", children: ["Rent", "Utilities", "Internet"] },
-    { name: "Health", icon: "💊", kind: "expense", children: ["Pharmacy", "Doctor", "Fitness"] },
-    { name: "Shopping", icon: "🛍️", kind: "expense", children: ["Clothes", "Electronics", "Home goods"] },
-    { name: "Entertainment", icon: "🎮", kind: "expense", children: ["Subscriptions", "Cinema", "Games", "Travel"] },
-    { name: "Other", icon: "📦", kind: "expense", children: ["Gifts", "Fees"] },
-    { name: "Salary", icon: "💼", kind: "income", children: ["Base pay", "Bonus"] },
-    { name: "Side income", icon: "💻", kind: "income", children: ["Freelance"] },
-    { name: "Other income", icon: "💰", kind: "income", children: ["Interest", "Refund", "Gift"] },
+    { name: "Groceries", icon: "cart", kind: "expense", children: ["Supermarket", "Market", "Delivery"] },
+    { name: "Cafes and restaurants", icon: "coffee", kind: "expense", children: ["Coffee", "Lunch", "Bar"] },
+    { name: "Transport", icon: "bus", kind: "expense", children: ["Public transport", "Taxi", "Fuel", "Parking"] },
+    { name: "Housing", icon: "home", kind: "expense", children: ["Rent", "Utilities", "Internet"] },
+    { name: "Health", icon: "pill", kind: "expense", children: ["Pharmacy", "Doctor", "Fitness"] },
+    { name: "Shopping", icon: "shopping", kind: "expense", children: ["Clothes", "Electronics", "Home goods"] },
+    { name: "Entertainment", icon: "games", kind: "expense", children: ["Subscriptions", "Cinema", "Games", "Travel"] },
+    { name: "Other", icon: "box", kind: "expense", children: ["Gifts", "Fees"] },
+    { name: "Salary", icon: "briefcase", kind: "income", children: ["Base pay", "Bonus"] },
+    { name: "Side income", icon: "laptop", kind: "income", children: ["Freelance"] },
+    { name: "Other income", icon: "cash-multiple", kind: "income", children: ["Interest", "Refund", "Gift"] },
 ];
 
 /**
@@ -52,8 +52,8 @@ export function seedIfEmpty(): void {
         return;
     }
 
-    accounts.add({ name: "Cash", icon: "💵", color: "#1baf7a", initialBalance: 0 });
-    accounts.add({ name: "Card", icon: "💳", color: "#2a78d6", initialBalance: 0 });
+    accounts.add({ name: "Cash", icon: "cash", color: "#1baf7a", initialBalance: 0 });
+    accounts.add({ name: "Card", icon: "credit-card", color: "#2a78d6", initialBalance: 0 });
 
     SEED_GROUPS.forEach((seed, index) => {
         const group = categories.addGroup({

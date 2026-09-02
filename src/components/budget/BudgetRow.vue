@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { nextTick, ref } from "vue";
 
+    import AppIcon from "@/components/common/AppIcon.vue";
     import { useSettingsStore } from "@/stores/settings";
     import { iconTint } from "@/utils/color";
 
@@ -64,7 +65,7 @@
 
 <template>
     <div class="row">
-        <span class="row__icon" :style="iconTint(color)">{{ icon }}</span>
+        <span class="row__icon" :style="iconTint(color)"><AppIcon :icon="icon" /></span>
 
         <div class="row__body">
             <div class="row__line">

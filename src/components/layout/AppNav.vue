@@ -1,6 +1,9 @@
 <script setup lang="ts">
     import { computed } from "vue";
 
+    import { mdiChartDonut, mdiChartLine, mdiCog, mdiFormatListBulleted, mdiTargetVariant, mdiTune, mdiWallet } from "@mdi/js";
+
+    import AppIcon from "@/components/common/AppIcon.vue";
     import { useAccountsStore } from "@/stores/accounts";
     import { useSettingsStore } from "@/stores/settings";
 
@@ -12,16 +15,16 @@
 
     /** The sections, in the same order as in any finance tracker. */
     const links = [
-        { to: "/accounts", label: "Accounts", icon: "👛" },
-        { to: "/categories", label: "Categories", icon: "◔" },
-        { to: "/transactions", label: "Transactions", icon: "🧾" },
-        { to: "/budget", label: "Budget", icon: "◎" },
-        { to: "/overview", label: "Overview", icon: "📈" },
+        { to: "/accounts", label: "Accounts", icon: mdiWallet },
+        { to: "/categories", label: "Categories", icon: mdiChartDonut },
+        { to: "/transactions", label: "Transactions", icon: mdiFormatListBulleted },
+        { to: "/budget", label: "Budget", icon: mdiTargetVariant },
+        { to: "/overview", label: "Overview", icon: mdiChartLine },
     ];
 
     const extra = [
-        { to: "/manage", label: "Manage", icon: "⚑" },
-        { to: "/settings", label: "Settings", icon: "⚙" },
+        { to: "/manage", label: "Manage", icon: mdiTune },
+        { to: "/settings", label: "Settings", icon: mdiCog },
     ];
 
     const totalLabel = computed(() => settings.money(accounts.totalBalance));
@@ -30,7 +33,7 @@
 <template>
     <nav v-if="isMobile" class="mobile-nav">
         <RouterLink v-for="link in links" :key="link.to" :to="link.to" class="mobile-nav__item">
-            <span class="mobile-nav__icon" aria-hidden="true">{{ link.icon }}</span>
+            <AppIcon class="mobile-nav__icon" :icon="link.icon" />
             <span class="mobile-nav__label">{{ link.label }}</span>
         </RouterLink>
     </nav>
@@ -49,14 +52,14 @@
         <el-button class="sidebar__add" type="primary" size="large" @click="$emit('add')">Add transaction</el-button>
 
         <RouterLink v-for="link in links" :key="link.to" :to="link.to" class="sidebar__link">
-            <span class="sidebar__icon" aria-hidden="true">{{ link.icon }}</span>
+            <AppIcon class="sidebar__icon" :icon="link.icon" />
             {{ link.label }}
         </RouterLink>
 
         <div class="sidebar__divider" />
 
         <RouterLink v-for="link in extra" :key="link.to" :to="link.to" class="sidebar__link sidebar__link--muted">
-            <span class="sidebar__icon" aria-hidden="true">{{ link.icon }}</span>
+            <AppIcon class="sidebar__icon" :icon="link.icon" />
             {{ link.label }}
         </RouterLink>
 
@@ -154,9 +157,7 @@
     }
 
     .sidebar__icon {
-        width: 18px;
-        text-align: center;
-        font-size: 15px;
+        font-size: 18px;
     }
 
     .sidebar__foot {
@@ -197,8 +198,7 @@
     }
 
     .mobile-nav__icon {
-        font-size: 17px;
-        line-height: 1;
+        font-size: 21px;
     }
 
     .mobile-nav__label {

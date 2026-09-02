@@ -2,6 +2,8 @@
     import { computed } from "vue";
 
     import type { Transaction } from "@/types/models";
+    import AppIcon from "@/components/common/AppIcon.vue";
+    import { TRANSFER_ICON, UNCATEGORISED_ICON } from "@/data/icons";
     import { useAccountsStore } from "@/stores/accounts";
     import { useCategoriesStore } from "@/stores/categories";
     import { useSettingsStore } from "@/stores/settings";
@@ -29,9 +31,9 @@
     /** The row icon: the category emoji, or an arrow for a transfer. */
     function iconFor(tx: Transaction): string {
         if (tx.kind === "transfer") {
-            return "⇄";
+            return TRANSFER_ICON;
         }
-        return categories.groupById(tx.groupId)?.icon ?? "•";
+        return categories.groupById(tx.groupId)?.icon ?? UNCATEGORISED_ICON;
     }
 
     function titleFor(tx: Transaction): string {
@@ -87,7 +89,7 @@
             </header>
 
             <button v-for="tx in day.items" :key="tx.id" type="button" class="tx-row" @click="emit('select', tx.id)">
-                <span class="ft-avatar" :style="iconTint(colorFor(tx))">{{ iconFor(tx) }}</span>
+                <span class="ft-avatar" :style="iconTint(colorFor(tx))"><AppIcon :icon="iconFor(tx)" /></span>
 
                 <span class="tx-row__text">
                     <span class="tx-row__title">{{ titleFor(tx) }}</span>

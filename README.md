@@ -40,9 +40,11 @@ src/
     color.ts             iconTint() — the shared look for category and account icons
     backup.ts            JSON export/import and CSV export
   stores/                Pinia: accounts, categories, transactions, recurring, budgets, period, settings
-  data/                  seed.ts (starter accounts and categories), recurrence.ts (recurrence presets)
+  data/                  seed.ts (starter accounts and categories), recurrence.ts (recurrence presets),
+                         icons.ts (the icon set offered for accounts and categories)
   composables/           useBreakpoint (desktop vs mobile layout)
   components/
+    common/              AppIcon (draws an icon by id), IconPicker (searchable icon grid), StatTile
     layout/              AppHeader (balance + period), AppNav (tabs), PageHeader (sub-pages)
     transactions/        QuickAddSheet, NumPad, PickerSheet, CategoryGrid, DateSheet, TransactionList
     manage/              accounts, categories and recurring-rule panels
@@ -157,6 +159,18 @@ The site then lives at `https://<user>.github.io/<repository>/`.
 `localhost:5173` do not follow you to the published URL. Before moving, use
 Settings → "Download backup (JSON)", and afterwards "Restore from file". The same applies
 when switching hosts or attaching a custom domain.
+
+## Icons
+
+Accounts and categories are drawn from a set of ~180 SVG icons in `data/icons.ts`, taken
+from [Material Design Icons](https://pictogrammers.com/library/mdi/) (Apache 2.0) through
+the `@mdi/js` package - it ships paths only, so the bundle carries just the icons listed
+in that file. `AppIcon` paints them with `currentColor` and sizes them in `em`, which is
+what lets `iconTint()` recolor an icon to match its category.
+
+The stored `icon` field holds an id such as `"cart"`. Records written by earlier versions
+hold an emoji instead; `AppIcon` renders any unknown value as text, so those keep showing
+up until the entity is edited.
 
 ## Ideas for next versions
 

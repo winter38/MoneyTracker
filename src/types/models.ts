@@ -23,7 +23,7 @@ export type RecurrencePeriod = "daily" | "weekdays" | "weekends" | "weekly" | "m
 export interface Account {
     id: string;
     name: string;
-    /** Emoji icon, shown in lists. */
+    /** An icon id from `@/data/icons`; data written by older versions holds an emoji instead. */
     icon: string;
     /** HEX color for the account marker. */
     color: string;

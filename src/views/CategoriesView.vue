@@ -3,6 +3,7 @@
     import { useRouter } from "vue-router";
 
     import type { CategoryKind } from "@/types/models";
+    import AppIcon from "@/components/common/AppIcon.vue";
     import { useBudgetsStore } from "@/stores/budgets";
     import { useCategoriesStore } from "@/stores/categories";
     import { usePeriodStore } from "@/stores/period";
@@ -127,7 +128,7 @@
                 @click="emit('addToCategory', row.id, kind)"
             >
                 <span class="tile__name">{{ row.name }}</span>
-                <span class="tile__icon" :style="iconTint(row.color)">{{ row.icon }}</span>
+                <span class="tile__icon" :style="iconTint(row.color)"><AppIcon :icon="row.icon" /></span>
                 <span class="tile__spent" :style="{ color: row.spent > 0 ? row.color : 'var(--ft-text-muted)' }">
                     {{ compactMoney(row.spent) }}
                 </span>

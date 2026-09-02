@@ -3,20 +3,21 @@
     import { ElMessage, ElMessageBox } from "element-plus";
 
     import type { CategoryGroup, CategoryKind } from "@/types/models";
+    import AppIcon from "@/components/common/AppIcon.vue";
+    import IconPicker from "@/components/common/IconPicker.vue";
+    import { DEFAULT_EXPENSE_ICON, DEFAULT_INCOME_ICON } from "@/data/icons";
     import { PALETTE } from "@/data/seed";
     import { useCategoriesStore } from "@/stores/categories";
     import { iconTint } from "@/utils/color";
 
     const categories = useCategoriesStore();
 
-    const ICONS = ["🛒", "☕", "🚌", "🏠", "💊", "🛍️", "🎮", "📦", "💼", "💻", "💰", "🎁", "✈️", "📚", "🐾", "🔧"];
-
     const kind = ref<CategoryKind>("expense");
     const expanded = ref<Set<string>>(new Set());
 
     const groupDialog = ref(false);
     const editingGroupId = ref<string | null>(null);
-    const groupForm = reactive({ name: "", icon: "📦", color: PALETTE[0] as string });
+    const groupForm = reactive({ name: "", icon: DEFAULT_EXPENSE_ICON, color: PALETTE[0] as string });
 
     const subDialog = ref(false);
     const subParentId = ref<string | null>(null);
@@ -37,7 +38,7 @@
         editingGroupId.value = null;
         Object.assign(groupForm, {
             name: "",
-            icon: kind.value === "expense" ? "📦" : "💰",
+            icon: kind.value === "expense" ? DEFAULT_EXPENSE_ICON : DEFAULT_INCOME_ICON,
             color: PALETTE[categories.groups.length % PALETTE.length],
         });
         groupDialog.value = true;
@@ -125,7 +126,7 @@
             <div v-for="node in categories.tree(kind)" :key="node.group.id" class="group">
                 <div class="group__head">
                     <button type="button" class="group__toggle" @click="toggle(node.group.id)">
-                        <span class="ft-avatar" :style="iconTint(node.group.color)">{{ node.group.icon }}</span>
+                        <span class="ft-avatar" :style="iconTint(node.group.color)"><AppIcon :icon="node.group.icon" /></span>
                         <span class="group__name">{{ node.group.name }}</span>
                         <span class="ft-muted group__count">{{ node.children.length }}</span>
                         <span class="group__chevron ft-muted">{{ expanded.has(node.group.id) ? "▾" : "▸" }}</span>
@@ -162,7 +163,7 @@
         <el-dialog v-model="groupDialog" :title="editingGroupId ? 'Group' : 'New group'" width="420px" append-to-body>
             <!-- Preview: shows at once how the category will look in the lists and in the ring. -->
             <div class="preview">
-                <span class="preview__icon" :style="iconTint(groupForm.color)">{{ groupForm.icon }}</span>
+                <span class="preview__icon" :style="iconTint(groupForm.color)"><AppIcon :icon="groupForm.icon" /></span>
                 <div class="preview__text">
                     <strong>{{ groupForm.name.trim() || "New group" }}</strong>
                     <span class="ft-muted">{{ kind === "expense" ? "Expenses" : "Income" }}</span>
@@ -174,21 +175,7 @@
                     <el-input v-model="groupForm.name" maxlength="40" placeholder="For example, Groceries" />
                 </el-form-item>
                 <el-form-item label="Icon">
-                    <div class="picker">
-                        <button
-                            v-for="icon in ICONS"
-                            :key="icon"
-                            type="button"
-                            class="picker__item"
-                            :class="{ 'picker__item--active': groupForm.icon === icon }"
-                            :style="
-                                groupForm.icon === icon ? { borderColor: groupForm.color, background: `${groupForm.color}22` } : undefined
-                            "
-                            @click="groupForm.icon = icon"
-                        >
-                            {{ icon }}
-                        </button>
-                    </div>
+                    <IconPicker v-model="groupForm.icon" :color="groupForm.color" />
                 </el-form-item>
                 <el-form-item label="Color">
                     <div class="picker">
@@ -363,21 +350,6 @@
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-    }
-
-    .picker__item {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        border: 1px solid var(--ft-border);
-        background: var(--ft-surface);
-        font-size: 18px;
-        cursor: pointer;
-    }
-
-    .picker__item--active {
-        border-color: var(--ft-accent);
-        box-shadow: 0 0 0 2px rgba(42, 120, 214, 0.2);
     }
 
     .picker__dot {

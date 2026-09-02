@@ -2,6 +2,7 @@
     import { computed, ref, watch } from "vue";
 
     import type { CategoryKind } from "@/types/models";
+    import AppIcon from "@/components/common/AppIcon.vue";
     import { useCategoriesStore } from "@/stores/categories";
     import { usePeriodStore } from "@/stores/period";
     import { useSettingsStore } from "@/stores/settings";
@@ -73,7 +74,7 @@
     <div class="grid-wrap">
         <header v-if="openGroup" class="grid-head">
             <button type="button" class="grid-head__back" @click="openGroupId = null">‹ All categories</button>
-            <span class="grid-head__title">{{ openGroup.icon }} {{ openGroup.name }}</span>
+            <span class="grid-head__title"><AppIcon class="grid-head__icon" :icon="openGroup.icon" />{{ openGroup.name }}</span>
         </header>
 
         <!-- Top level: the groups -->
@@ -86,7 +87,7 @@
                 :class="{ 'tile--active': groupId === group.id }"
                 @click="onGroupTap(group.id)"
             >
-                <span class="tile__icon" :style="iconTint(group.color)">{{ group.icon }}</span>
+                <span class="tile__icon" :style="iconTint(group.color)"><AppIcon :icon="group.icon" /></span>
                 <span class="tile__name">{{ group.name }}</span>
                 <span v-if="showAmounts" class="tile__amount" :style="{ color: group.color }">{{
                     amountLabel(groupTotals[group.id])
@@ -103,7 +104,7 @@
                 :class="{ 'tile--active': groupId === openGroup.id && !subcategoryId }"
                 @click="emit('select', openGroup.id, undefined, true)"
             >
-                <span class="tile__icon" :style="iconTint(openGroup.color)">{{ openGroup.icon }}</span>
+                <span class="tile__icon" :style="iconTint(openGroup.color)"><AppIcon :icon="openGroup.icon" /></span>
                 <span class="tile__name">Whole group</span>
                 <span v-if="showAmounts" class="tile__amount" :style="{ color: openGroup.color }">{{
                     amountLabel(groupTotals[openGroup.id])
@@ -118,7 +119,7 @@
                 :class="{ 'tile--active': subcategoryId === child.id }"
                 @click="emit('select', openGroup.id, child.id, true)"
             >
-                <span class="tile__icon tile__icon--sub" :style="iconTint(openGroup.color)">{{ openGroup.icon }}</span>
+                <span class="tile__icon tile__icon--sub" :style="iconTint(openGroup.color)"><AppIcon :icon="openGroup.icon" /></span>
                 <span class="tile__name">{{ child.name }}</span>
                 <span v-if="showAmounts" class="tile__amount" :style="{ color: openGroup.color }">{{
                     amountLabel(subTotals[child.id])
@@ -153,6 +154,9 @@
     }
 
     .grid-head__title {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         font-weight: 600;
         overflow: hidden;
         text-overflow: ellipsis;

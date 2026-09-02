@@ -3,7 +3,9 @@
     import { ElMessage } from "element-plus";
 
     import type { RecurringRule, TxKind } from "@/types/models";
+    import AppIcon from "@/components/common/AppIcon.vue";
     import CategoryPicker from "@/components/transactions/CategoryPicker.vue";
+    import { RECURRING_ICON, TRANSFER_ICON } from "@/data/icons";
     import { RECURRENCE_PRESETS, describeRecurrence, presetByKey } from "@/data/recurrence";
     import { useAccountsStore } from "@/stores/accounts";
     import { useCategoriesStore } from "@/stores/categories";
@@ -121,6 +123,14 @@
         ElMessage.success(created > 0 ? `Rule saved, transactions created: ${created}` : "Rule saved");
     }
 
+    /** A rule shows its category icon; a transfer and a category-less rule get a stand-in. */
+    function iconFor(rule: RecurringRule): string {
+        if (rule.kind === "transfer") {
+            return TRANSFER_ICON;
+        }
+        return categories.groupById(rule.groupId)?.icon ?? RECURRING_ICON;
+    }
+
     function periodLabel(rule: RecurringRule): string {
         return describeRecurrence(rule.period, rule.interval).toLowerCase();
     }
@@ -138,7 +148,7 @@
 
             <div v-for="rule in recurring.items" :key="rule.id" class="row" :class="{ 'row--off': !rule.active }">
                 <span class="ft-avatar" :style="{ background: 'var(--ft-surface-muted)' }">
-                    {{ rule.kind === "transfer" ? "⇄" : (categories.groupById(rule.groupId)?.icon ?? "🔁") }}
+                    <AppIcon :icon="iconFor(rule)" />
                 </span>
                 <div class="row__text">
                     <span>{{ rule.title }}</span>
