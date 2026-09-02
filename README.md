@@ -1,129 +1,132 @@
-# Finance Tracker
+# MoneyTracker
 
-Личный трекер финансов: счета, дерево категорий (группа → подкатегория), операции,
-повторяющиеся правила и отчёты. Данные хранятся **только в браузере** (localStorage),
-никаких серверов и аккаунтов. Перенос между устройствами — через экспорт/импорт JSON.
+A personal finance tracker: accounts, a two-level category tree (group → subcategory),
+transactions, recurring rules, budgets and reports. Data lives **only in the browser**
+(localStorage) — no server, no accounts, no sign-up. Moving between devices is done with
+JSON export/import.
 
-## Стек
+## Stack
 
 - Vite + Vue 3 (`<script setup>`, Composition API) + TypeScript (strict)
-- Pinia — сторы, каждый сам пишет свой срез в localStorage
-- Vue Router (hash-режим, чтобы `dist` открывался с любого хостинга без rewrite-правил)
-- Element Plus — UI-кит, ApexCharts — графики
+- Pinia — each store persists its own slice to localStorage
+- Vue Router (hash mode, so `dist` runs from any host without rewrite rules)
+- Element Plus for UI, ApexCharts for charts
 - ESLint (flat config) + Prettier
 
-## Запуск
+## Getting started
 
 ```bash
 npm install
 npm run dev          # http://localhost:5173
-npm run dev:host     # то же, но доступно с телефона по IP компьютера в той же Wi-Fi сети
-npm run build        # проверка типов + сборка в dist/
-npm run preview      # локальный просмотр собранного dist/
+npm run dev:host     # same, but reachable from a phone on the same Wi-Fi
+npm run build        # type-check + build into dist/
+npm run preview      # serve the built dist/ locally
 npm run lint
 ```
 
-Для доступа с телефона: `npm run dev:host`, затем открыть на телефоне
-`http://<IP-компьютера>:5173` (IP смотреть через `ipconfig`). В Chrome на Android
-страницу можно добавить на рабочий стол — откроется как приложение.
+To use it from a phone: run `npm run dev:host` and open `http://<computer-ip>:5173`
+(find the IP with `ipconfig`). Chrome on Android can add the page to the home screen,
+where it opens like an app.
 
-## Структура
+## Project structure
 
 ```
 src/
-  types/models.ts        доменные типы (Account, CategoryGroup, Subcategory, Transaction, RecurringRule, Budget)
+  types/models.ts        domain types (Account, CategoryGroup, Subcategory, Transaction, RecurringRule, Budget)
   utils/
-    storage.ts           единственное место, где приложение общается с localStorage
-    money.ts             округление до копеек, форматирование валюты, разбор ввода
-    date.ts              ISO-даты, расчётные периоды, сдвиг по периодичности
-    backup.ts            экспорт/импорт JSON и выгрузка CSV
+    storage.ts           the only place that talks to localStorage
+    money.ts             rounding to cents, currency formatting, input parsing
+    date.ts              ISO dates, billing periods, recurrence stepping
+    color.ts             iconTint() — the shared look for category and account icons
+    backup.ts            JSON export/import and CSV export
   stores/                Pinia: accounts, categories, transactions, recurring, budgets, period, settings
-  data/seed.ts           стартовые счета и категории для пустой базы
-  composables/           useBreakpoint (десктоп/мобильный макет)
+  data/                  seed.ts (starter accounts and categories), recurrence.ts (recurrence presets)
+  composables/           useBreakpoint (desktop vs mobile layout)
   components/
-    layout/              AppHeader (баланс + период), AppNav (вкладки), PageHeader (вложенные страницы)
-    transactions/        QuickAddSheet, NumPad, PickerSheet, CategoryGrid, TransactionList
-    manage/              панели счетов, категорий и повторяющихся правил
-    budget/              строка бюджета с планом и полосой выполнения
+    layout/              AppHeader (balance + period), AppNav (tabs), PageHeader (sub-pages)
+    transactions/        QuickAddSheet, NumPad, PickerSheet, CategoryGrid, DateSheet, TransactionList
+    manage/              accounts, categories and recurring-rule panels
+    budget/              budget row with plan and progress bar
   views/                 Accounts, Categories, Transactions, Budget, Overview, Manage, Settings
 ```
 
-Разделы повторяют 1Money: **Счета · Категории · Операции · Бюджет · Обзор** в нижней
-навигации (на десктопе — боковое меню), «Справочники» и «Настройки» — за кнопками в шапке.
+The sections mirror 1Money: **Accounts · Categories · Transactions · Budget · Overview**
+in the bottom navigation (a sidebar on desktop); "Manage" and "Settings" sit behind the
+header buttons.
 
-## Как всё устроено
+## How it works
 
-**Хранение.** Каждый стор при изменении пишет свой ключ (`finance-tracker:transactions`
-и т.д.) через `utils/storage.ts`. Лимит localStorage — около 5 МБ на сайт, это десятки
-тысяч операций. Если однажды упрётся или понадобится синхронизация между устройствами,
-менять нужно только `utils/storage.ts` и место вызова — остальной код работает со сторами.
+**Storage.** Every store writes its own key (`finance-tracker:transactions` and so on)
+through `utils/storage.ts`. The localStorage limit is about 5 MB per site — tens of
+thousands of transactions. If that ever becomes tight, or cross-device sync is needed,
+only `utils/storage.ts` and its call sites change; the rest of the app talks to stores.
 
-**Категории.** Два уровня: `CategoryGroup` (с иконкой и цветом) и `Subcategory`.
-Направление задаётся полем `kind` — расходное и доходное деревья независимы.
+**Categories.** Two levels: `CategoryGroup` (with icon and colour) and `Subcategory`.
+The `kind` field keeps the expense and income trees independent.
 
-**Быстрый ввод** (`components/transactions/QuickAddSheet.vue`) повторяет экран 1Money:
-двухцветная шапка «Со счёта / В категорию», тап по половине открывает выбор
-(`PickerSheet.vue` — список счетов или плитка категорий), под шапкой пилюля подкатегории,
-крупная сумма, заметка и своя цифровая клавиатура.
+**Quick add** (`components/transactions/QuickAddSheet.vue`) follows the 1Money screen:
+a two-colour header ("From account / To category") where tapping a half opens a picker
+(`PickerSheet.vue` — account list or category grid), a subcategory pill underneath, a
+large amount, a note field and a custom numeric keypad.
 
-Клавиатура своя, а не системная (`NumPad.vue`): она не перекрывает верх формы, содержит
-калькулятор (`12 × 3` → 36) и кнопку календаря. Тап по группе с подкатегориями раскрывает
-их, но саму группу уже помечает выбранной — поэтому у события `select` есть флаг `final`,
-отличающий «провалиться внутрь» от окончательного выбора. Под иконками категорий видно,
-сколько уже потрачено в них за выбранный месяц.
+The keypad is custom rather than the system one (`NumPad.vue`): it never covers the top
+of the form, includes a calculator (`12 × 3` → 36) and a date button. Tapping a group
+that has subcategories expands it while already marking the group as selected — that is
+why the `select` event carries a `final` flag separating "drill in" from a final choice.
+Amounts spent this month are shown under each category icon.
 
-**Дата и повторение** (`DateSheet.vue`) — кнопка календаря на клавиатуре открывает лист
-с «Вчера / Сегодня / Выбрать день» и списком повторений (`data/recurrence.ts`: по будням,
-по выходным, раз в 2 недели и т.д.). Если выбрать повторение, при сохранении операции
-рядом создаётся правило в `stores/recurring.ts`: сама операция считается первым
-срабатыванием, поэтому `nextDate` сразу сдвигается на период вперёд. Тот же список
-пресетов используется в «Справочниках», так что периодичность везде описывается одинаково.
+**Date and recurrence** (`DateSheet.vue`) — the calendar key opens a sheet with
+"Yesterday / Today / Pick a day" and a list of recurrence presets (`data/recurrence.ts`:
+weekdays, weekends, every two weeks and so on). Choosing a recurrence creates a rule in
+`stores/recurring.ts` when the transaction is saved: the transaction itself counts as the
+first occurrence, so `nextDate` is moved one period ahead immediately. The same preset
+list is used in "Manage", so recurrence is described identically everywhere.
 
-**Кольцо категорий** (`views/CategoriesView.vue`) — бублик расходов в центре, плитки
-категорий вокруг; тап по категории сразу открывает добавление операции в неё.
+**Category ring** (`views/CategoriesView.vue`) — a donut of expenses in the middle with
+category tiles around it; tapping a category opens the quick-add sheet for it.
 
-**Бюджет** (`stores/budgets.ts`) — план на расчётный месяц по каждой группе категорий,
-один и тот же для всех месяцев. Факт считается по операциям периода; полоса краснеет при
-перерасходе и желтеет после 85 % плана.
+**Budget** (`stores/budgets.ts`) — a monthly plan per category group, the same for every
+month. Actuals come from the period's transactions; the bar turns yellow past 85 % of the
+plan and red on overspend.
 
-**Период** вынесен в стор (`stores/period.ts`), а не в композабл: месяц выбирается один раз
-в шапке и сохраняется при переходе между вкладками.
+**Period** lives in a store (`stores/period.ts`) rather than a composable: the month is
+picked once in the header and stays put while switching tabs.
 
-**Балансы** не хранятся, а считаются: стартовый остаток счёта плюс движение по всем
-операциям (`transactions.deltaForAccount`). Так не бывает рассинхрона между списком
-операций и балансом.
+**Balances** are never stored, always derived: the account's initial balance plus the
+movement of all its transactions (`transactions.deltaForAccount`). That way the list and
+the balance can never drift apart.
 
-**Повторяющиеся операции.** `recurring.materializeDue()` вызывается один раз при старте
-приложения (`main.ts`) и досоздаёт все операции, у которых наступил срок, — если не
-заходил неделю, они создадутся разом.
+**Recurring transactions.** `recurring.materializeDue()` runs once at startup (`main.ts`)
+and creates every occurrence that is already due — if the app has not been opened for a
+week, they all appear at once.
 
-**Расчётный месяц.** В настройках есть «день начала месяца»: если поставить 25, отчёты
-будут считаться от зарплаты до зарплаты, а не по календарю.
+**Custom month.** Settings has a "month start day": set it to 25 and reports run from one
+payday to the next instead of following the calendar.
 
-## Правила интерфейса
+## UI conventions
 
-- Всё, по чему нужно попадать пальцем, — не меньше 44px (`--ft-tap`). На узком экране
-  Element Plus переключается в размер `large` (см. `main.ts`), а поля и кнопки получают
-  минимальную высоту в `assets/styles/main.css`.
-- Основные вкладки живут в нижней навигации, «Справочники» и «Настройки» — вложенные
-  страницы с `PageHeader` и кнопкой «назад»; на них не показывается кнопка «+».
-- Названия категорий переносятся в две строки, а не обрезаются многоточием: «Кафе и
-  рестораны» должно читаться целиком.
-- Иконки категорий и счетов везде рисуются одним хелпером `utils/color.ts` → `iconTint()`:
-  приглушённая заливка цветом сущности плюс тонкое кольцо. Сплошная заливка по-разному
-  читалась в светлой и тёмной теме, поэтому свои варианты по месту не заводим.
-- Значки в кнопках — SVG-иконки Element Plus в связке с классом `.ft-icon-btn`
-  (флекс-центрирование). Текстовые глифы вроде «+» и «✕» центрируются по метрикам
-  шрифта, а не по кнопке, и заметно «прыгают» — поэтому их не используем.
-- Суммы в узких местах (плитки категорий, центр кольца) сокращаются до «2,2 млн €»
-  и обрезаются по ширине ячейки — иначе соседние подписи наезжают друг на друга.
-- Месяц в шапке листается в обе стороны, включая будущие — там видны планы и предстоящие
-  повторяющиеся операции. Тап по названию месяца возвращает к текущему.
+- Anything you tap is at least 44px (`--ft-tap`). On narrow screens Element Plus switches
+  to its `large` size (see `main.ts`) and controls get a minimum height in
+  `assets/styles/main.css`.
+- Main sections live in the bottom navigation; "Manage" and "Settings" are sub-pages with
+  `PageHeader` and a back button, and they hide the floating "+" button.
+- Category names wrap to two lines instead of being truncated — "Cafes and restaurants"
+  has to be readable in full.
+- Category and account icons are always rendered through `utils/color.ts` → `iconTint()`:
+  a muted fill in the entity's colour plus a thin ring. A solid fill read very differently
+  in light and dark themes, so no local variations.
+- Button glyphs are Element Plus SVG icons together with the `.ft-icon-btn` class (flex
+  centring). Text glyphs like "+" and "✕" are centred by font metrics rather than by the
+  button and visibly jump around, so they are avoided.
+- Amounts in tight spots (category tiles, the centre of the ring) are shortened to
+  "2.2M €" and clipped to the cell width, otherwise neighbouring labels collide.
+- The month in the header scrolls both ways, future months included — that is where plans
+  and upcoming recurring transactions show up. Tapping the month name returns to today.
 
-## Дымовой тест
+## Tests
 
-`smoke.mjs` поднимает браузер, добавляет операцию, проходит по всем разделам и проверяет,
-что данные пережили перезагрузку и что в консоли нет ошибок:
+`smoke.mjs` drives a real browser: it adds a transaction, walks every section and checks
+that the data survived a reload and that the console stayed clean.
 
 ```bash
 npm install -D playwright && npx playwright install chromium
@@ -131,32 +134,32 @@ npm run build && npx vite preview --port 4173 &
 node smoke.mjs
 ```
 
-Рядом лежит `audit.mjs` — он проходит по всем экранам в трёх ширинах (390, 410, 1280),
-ищет горизонтальную прокрутку, слишком мелкие кликабельные элементы и ошибки в консоли,
-а заодно раскладывает скриншоты `a-<ширина>-<экран>.png` для глазами-проверки:
+`audit.mjs` visits every screen at three widths (390, 410, 1280) looking for horizontal
+overflow, tap targets under 40px and console errors, and drops screenshots named
+`a-<width>-<screen>.png` for eyeballing:
 
 ```bash
 node audit.mjs
 ```
 
-## Публикация
+## Deployment
 
-`npm run build` даёт статические файлы в `dist/` — их можно положить на GitHub Pages,
-Netlify, Cloudflare Pages или любой другой статический хостинг. Благодаря `base: "./"`
-и hash-роутингу дополнительная настройка не нужна.
+`npm run build` produces static files in `dist/` that can go to GitHub Pages, Netlify,
+Cloudflare Pages or any other static host. Thanks to `base: "./"` and hash routing no
+extra configuration is needed.
 
-**GitHub Pages.** В репозитории уже лежит `.github/workflows/deploy.yml`: при пуше в `main`
-он ставит зависимости, собирает проект и публикует `dist`. Один раз нужно включить это на
-стороне GitHub: Settings → Pages → Build and deployment → Source → **GitHub Actions**.
-Дальше сайт живёт по адресу `https://<логин>.github.io/<репозиторий>/`.
+**GitHub Pages.** `.github/workflows/deploy.yml` is already in the repository: on a push
+to `main` it installs dependencies, builds the project and publishes `dist`. Enable it
+once on GitHub: Settings → Pages → Build and deployment → Source → **GitHub Actions**.
+The site then lives at `https://<user>.github.io/<repository>/`.
 
-**Важно про данные.** localStorage привязан к адресу сайта, поэтому записи с `localhost:5173`
-не переедут на опубликованный адрес автоматически. Перед переездом — Настройки → «Скачать
-резервную копию (JSON)», после — «Восстановить из файла». То же самое при смене хостинга
-или подключении своего домена.
+**A note about data.** localStorage is bound to the site address, so records from
+`localhost:5173` do not follow you to the published URL. Before moving, use
+Settings → "Download backup (JSON)", and afterwards "Restore from file". The same applies
+when switching hosts or attaching a custom domain.
 
-## Идеи для следующих версий
+## Ideas for next versions
 
-- Пароль и шифрование данных (Web Crypto: PBKDF2 + AES-GCM) поверх текущего хранилища
-- Синхронизация между устройствами через Supabase (Postgres + авторизация)
-- Перенос хранилища на IndexedDB, если данных станет много (например, фото чеков)
+- A password and client-side encryption (Web Crypto: PBKDF2 + AES-GCM) over the current storage
+- Cross-device sync through Supabase (Postgres + auth)
+- Moving storage to IndexedDB if the data ever grows large (receipt photos, for example)
