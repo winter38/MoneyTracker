@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { computed, ref } from "vue";
     import { useRoute } from "vue-router";
+    import en from "element-plus/es/locale/lang/en";
 
     import AppHeader from "@/components/layout/AppHeader.vue";
     import AppNav from "@/components/layout/AppNav.vue";
@@ -27,29 +28,42 @@
 </script>
 
 <template>
-    <div class="app" :class="{ 'app--mobile': isMobile }">
-        <AppNav :is-mobile="isMobile" @add="openQuickAdd" />
+    <!--
+        Element Plus is no longer installed as a global plugin (it is auto-imported per component),
+        so its locale and default size are configured here instead. On a narrow screen the controls
+        are larger: 32px tall fields are hard to hit with a finger.
+    -->
+    <el-config-provider :locale="en" :size="isMobile ? 'large' : 'default'">
+        <div class="app" :class="{ 'app--mobile': isMobile }">
+            <AppNav :is-mobile="isMobile" @add="openQuickAdd" />
 
-        <main class="app__main">
-            <AppHeader v-if="showHeader" />
+            <main class="app__main">
+                <AppHeader v-if="showHeader" />
 
-            <div class="app__content">
-                <RouterView v-slot="{ Component }">
-                    <component
-                        :is="Component"
-                        @edit-transaction="(id: string) => sheetRef?.openEdit(id)"
-                        @add-to-category="openForCategory"
-                    />
-                </RouterView>
-            </div>
-        </main>
+                <div class="app__content">
+                    <RouterView v-slot="{ Component }">
+                        <component
+                            :is="Component"
+                            @edit-transaction="(id: string) => sheetRef?.openEdit(id)"
+                            @add-to-category="openForCategory"
+                        />
+                    </RouterView>
+                </div>
+            </main>
 
-        <button v-if="isMobile && !isSubPage" class="app__fab ft-icon-btn" type="button" aria-label="Add transaction" @click="openQuickAdd">
-            <el-icon :size="30"><Plus /></el-icon>
-        </button>
+            <button
+                v-if="isMobile && !isSubPage"
+                class="app__fab ft-icon-btn"
+                type="button"
+                aria-label="Add transaction"
+                @click="openQuickAdd"
+            >
+                <el-icon :size="30"><Plus /></el-icon>
+            </button>
 
-        <QuickAddSheet ref="sheetRef" />
-    </div>
+            <QuickAddSheet ref="sheetRef" />
+        </div>
+    </el-config-provider>
 </template>
 
 <style scoped>

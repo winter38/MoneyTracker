@@ -1,11 +1,14 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-import ElementPlus from "element-plus";
-import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 import VueApexCharts from "vue3-apexcharts";
-import en from "element-plus/es/locale/lang/en";
 
-import "element-plus/dist/index.css";
+// Element Plus components are auto-imported per template by unplugin-vue-components
+// (see vite.config.ts), so only the base variables and the styles of the two components
+// that are called from code rather than from a template are needed here.
+import "element-plus/theme-chalk/base.css";
+import "element-plus/theme-chalk/el-message.css";
+import "element-plus/theme-chalk/el-message-box.css";
+import "element-plus/theme-chalk/el-overlay.css";
 import "element-plus/theme-chalk/dark/css-vars.css";
 import "@/assets/styles/main.css";
 
@@ -20,13 +23,7 @@ const pinia = createPinia();
 
 app.use(pinia);
 app.use(router);
-// On a narrow screen Element Plus components are larger - 32px tall fields are hard to hit with a finger.
-app.use(ElementPlus, { locale: en, size: window.matchMedia("(max-width: 899px)").matches ? "large" : "default" });
 app.use(VueApexCharts);
-
-Object.entries(ElementPlusIconsVue).forEach(([name, component]) => {
-    app.component(name, component);
-});
 
 // Startup work: the theme, demo categories for an empty database, and catching up on
 // transactions from recurring rules for the time the app was not open.

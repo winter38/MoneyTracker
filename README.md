@@ -10,7 +10,8 @@ JSON export/import.
 - Vite + Vue 3 (`<script setup>`, Composition API) + TypeScript (strict)
 - Pinia — each store persists its own slice to localStorage
 - Vue Router (hash mode, so `dist` runs from any host without rewrite rules)
-- Element Plus for UI, ApexCharts for charts
+- Element Plus for UI (auto-imported per component by `unplugin-vue-components`, so only what the
+  templates use ends up in the bundle), ApexCharts for charts
 - ESLint (flat config) + Prettier
 
 ## Getting started
