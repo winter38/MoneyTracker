@@ -2,7 +2,8 @@ import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 
 import type { Settings } from "@/types/models";
-import { STORAGE_KEYS, loadState, saveState } from "@/utils/storage";
+import { STORAGE_KEYS, loadState } from "@/utils/storage";
+import { persist } from "@/utils/persist";
 import { formatMoney } from "@/utils/money";
 
 const DEFAULTS: Settings = {
@@ -15,7 +16,7 @@ const DEFAULTS: Settings = {
 export const useSettingsStore = defineStore("settings", () => {
     const state = ref<Settings>({ ...DEFAULTS, ...loadState<Partial<Settings>>(STORAGE_KEYS.settings, {}) });
 
-    watch(state, (value) => saveState(STORAGE_KEYS.settings, value), { deep: true });
+    persist(STORAGE_KEYS.settings, state);
 
     const currency = computed(() => state.value.currency);
     const locale = computed(() => state.value.locale);

@@ -86,7 +86,16 @@ export function downloadCsv(): void {
     const accounts = useAccountsStore();
     const categories = useCategoriesStore();
 
-    const escape = (value: string): string => `"${value.replace(/"/g, '""')}"`;
+    /**
+     * Wraps a value for CSV and defuses formula injection: Excel and Google Sheets treat a cell
+     * starting with = + - @ (possibly after whitespace) as a formula, so a note like `=1+1` would be
+     * executed on open. A leading apostrophe forces the cell to stay text.
+     */
+    const escape = (value: string): string => {
+        const safe = /^\s*[=+\-@]/.test(value) ? `'${value}` : value;
+        return `"${safe.replace(/"/g, '""')}"`;
+    };
+
     const rows = [["Date", "Type", "Amount", "Account", "Destination account", "Group", "Subcategory", "Note"].join(",")];
 
     transactions.sorted.forEach((tx) => {

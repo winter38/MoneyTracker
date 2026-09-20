@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 import type { Budget } from "@/types/models";
-import { STORAGE_KEYS, loadState, saveState } from "@/utils/storage";
+import { STORAGE_KEYS, loadState } from "@/utils/storage";
+import { persist } from "@/utils/persist";
 import { round2 } from "@/utils/money";
 
 const STORAGE_KEY = STORAGE_KEYS.budgets;
@@ -10,7 +11,7 @@ const STORAGE_KEY = STORAGE_KEYS.budgets;
 export const useBudgetsStore = defineStore("budgets", () => {
     const items = ref<Budget[]>(loadState<Budget[]>(STORAGE_KEY, []));
 
-    watch(items, (value) => saveState(STORAGE_KEY, value), { deep: true });
+    persist(STORAGE_KEY, items);
 
     /** The planned amount for a group; 0 means no plan is set. */
     function amountFor(groupId: string): number {

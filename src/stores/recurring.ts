@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 import type { RecurringRule } from "@/types/models";
-import { STORAGE_KEYS, loadState, saveState } from "@/utils/storage";
+import { STORAGE_KEYS, loadState } from "@/utils/storage";
+import { persist } from "@/utils/persist";
 import { createId } from "@/utils/id";
 import { addPeriod, today } from "@/utils/date";
 import { useTransactionsStore } from "@/stores/transactions";
@@ -10,7 +11,7 @@ import { useTransactionsStore } from "@/stores/transactions";
 export const useRecurringStore = defineStore("recurring", () => {
     const items = ref<RecurringRule[]>(loadState<RecurringRule[]>(STORAGE_KEYS.recurring, []));
 
-    watch(items, (value) => saveState(STORAGE_KEYS.recurring, value), { deep: true });
+    persist(STORAGE_KEYS.recurring, items);
 
     const active = computed(() => items.value.filter((rule) => rule.active).sort((a, b) => (a.nextDate < b.nextDate ? -1 : 1)));
 

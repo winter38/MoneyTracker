@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 import type { Account } from "@/types/models";
-import { STORAGE_KEYS, loadState, saveState } from "@/utils/storage";
+import { STORAGE_KEYS, loadState } from "@/utils/storage";
+import { persist } from "@/utils/persist";
 import { createId } from "@/utils/id";
 import { round2 } from "@/utils/money";
 import { useTransactionsStore } from "@/stores/transactions";
@@ -10,7 +11,7 @@ import { useTransactionsStore } from "@/stores/transactions";
 export const useAccountsStore = defineStore("accounts", () => {
     const items = ref<Account[]>(loadState<Account[]>(STORAGE_KEYS.accounts, []));
 
-    watch(items, (value) => saveState(STORAGE_KEYS.accounts, value), { deep: true });
+    persist(STORAGE_KEYS.accounts, items);
 
     const active = computed(() => items.value.filter((account) => !account.archived).sort((a, b) => a.order - b.order));
     const all = computed(() => [...items.value].sort((a, b) => a.order - b.order));

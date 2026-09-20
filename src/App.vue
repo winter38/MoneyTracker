@@ -1,12 +1,14 @@
 <script setup lang="ts">
-    import { computed, ref } from "vue";
+    import { computed, ref, watch } from "vue";
     import { useRoute } from "vue-router";
+    import { ElMessage } from "element-plus";
     import en from "element-plus/es/locale/lang/en";
 
     import AppHeader from "@/components/layout/AppHeader.vue";
     import AppNav from "@/components/layout/AppNav.vue";
     import QuickAddSheet from "@/components/transactions/QuickAddSheet.vue";
     import { useBreakpoint } from "@/composables/useBreakpoint";
+    import { storageFailed } from "@/utils/persist";
 
     const route = useRoute();
     const { isMobile } = useBreakpoint();
@@ -16,6 +18,28 @@
     /** Manage and Settings are sub-pages: no shared header and no "+" button. */
     const isSubPage = computed(() => ["manage", "settings"].includes(String(route.name)));
     const showHeader = computed(() => !isSubPage.value);
+
+    /**
+     * The data lives in localStorage only, so a failed write means the entries are lost on reload.
+     * The message has no timeout on purpose - this is not a notification to be missed.
+     * `immediate` because the startup work in main.ts (seeding, catching up on recurring rules)
+     * writes before this component exists - without it such a failure would go unreported.
+     */
+    watch(
+        storageFailed,
+        (failed) => {
+            if (failed) {
+                ElMessage.error({
+                    message:
+                        "Could not save your data - the browser storage is full or blocked. Export a backup from Settings before closing the tab.",
+                    duration: 0,
+                    showClose: true,
+                    grouping: true,
+                });
+            }
+        },
+        { immediate: true },
+    );
 
     function openQuickAdd(): void {
         sheetRef.value?.openNew();

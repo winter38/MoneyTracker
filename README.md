@@ -36,6 +36,7 @@ src/
   types/models.ts        domain types (Account, CategoryGroup, Subcategory, Transaction, RecurringRule, Budget)
   utils/
     storage.ts           the only place that talks to localStorage
+    persist.ts           keeps a store slice in sync with localStorage and remembers failed writes
     money.ts             rounding to cents, currency formatting, input parsing
     date.ts              ISO dates, billing periods, recurrence stepping
     color.ts             iconTint() — the shared look for category and account icons
@@ -63,6 +64,8 @@ header buttons.
 through `utils/storage.ts`. The localStorage limit is about 5 MB per site — tens of
 thousands of transactions. If that ever becomes tight, or cross-device sync is needed,
 only `utils/storage.ts` and its call sites change; the rest of the app talks to stores.
+If a write ever fails (the quota is full, or the browser blocks storage), the app says so in a
+message that does not disappear on its own - silently losing entries would be worse.
 
 **Categories.** Two levels: `CategoryGroup` (with icon and colour) and `Subcategory`.
 The `kind` field keeps the expense and income trees independent.

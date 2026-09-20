@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 import type { Transaction, TxKind } from "@/types/models";
-import { STORAGE_KEYS, loadState, saveState } from "@/utils/storage";
+import { STORAGE_KEYS, loadState } from "@/utils/storage";
+import { persist } from "@/utils/persist";
 import { createId } from "@/utils/id";
 import { round2 } from "@/utils/money";
 import { monthKey } from "@/utils/date";
@@ -20,7 +21,7 @@ export interface TxFilter {
 export const useTransactionsStore = defineStore("transactions", () => {
     const items = ref<Transaction[]>(loadState<Transaction[]>(STORAGE_KEYS.transactions, []));
 
-    watch(items, (value) => saveState(STORAGE_KEYS.transactions, value), { deep: true });
+    persist(STORAGE_KEYS.transactions, items);
 
     /** All transactions, newest first. */
     const sorted = computed(() =>

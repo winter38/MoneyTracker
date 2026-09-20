@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 import type { CategoryGroup, CategoryKind, Subcategory } from "@/types/models";
-import { STORAGE_KEYS, loadState, saveState } from "@/utils/storage";
+import { STORAGE_KEYS, loadState } from "@/utils/storage";
+import { persist } from "@/utils/persist";
 import { createId } from "@/utils/id";
 
 /** A "group + its subcategories" tree - what gets rendered in the dropdowns and in the Categories section. */
@@ -15,8 +16,8 @@ export const useCategoriesStore = defineStore("categories", () => {
     const groups = ref<CategoryGroup[]>(loadState<CategoryGroup[]>(STORAGE_KEYS.groups, []));
     const subcategories = ref<Subcategory[]>(loadState<Subcategory[]>(STORAGE_KEYS.subcategories, []));
 
-    watch(groups, (value) => saveState(STORAGE_KEYS.groups, value), { deep: true });
-    watch(subcategories, (value) => saveState(STORAGE_KEYS.subcategories, value), { deep: true });
+    persist(STORAGE_KEYS.groups, groups);
+    persist(STORAGE_KEYS.subcategories, subcategories);
 
     function groupById(id: string | undefined): CategoryGroup | undefined {
         return id ? groups.value.find((group) => group.id === id) : undefined;
