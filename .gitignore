@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.log
+
+# A local folder with migration archives - not needed in the repository
+_to_delete
