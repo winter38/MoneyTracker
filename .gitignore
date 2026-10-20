@@ -10,3 +10,6 @@ dist-ssr
 
 # A local folder with migration archives - not needed in the repository
 _to_delete
+
+# Local tooling config
+.claude

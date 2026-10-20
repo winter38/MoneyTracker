@@ -9,6 +9,7 @@
     import { useSettingsStore } from "@/stores/settings";
     import { useTransactionsStore } from "@/stores/transactions";
     import { downloadBackup, downloadCsv, parseBackup, restoreBackup } from "@/utils/backup";
+    import { applyImportPlan, prepareOneMoneyImport, type ImportPlan } from "@/utils/import1money";
     import { clearAll, usedBytes } from "@/utils/storage";
 
     const accounts = useAccountsStore();
@@ -18,6 +19,9 @@
     const transactions = useTransactionsStore();
 
     const fileInput = ref<HTMLInputElement | null>(null);
+    const oneMoneyInput = ref<HTMLInputElement | null>(null);
+    // Reading a database means fetching the SQLite engine first, which takes a moment on a phone.
+    const importing = ref(false);
 
     const CURRENCIES = ["EUR", "USD", "GBP", "PLN", "CZK", "SEK", "NOK", "CHF"];
 
@@ -62,6 +66,74 @@
                 ElMessage.error(error.message);
             }
         } finally {
+            input.value = "";
+        }
+    }
+
+    function pickOneMoneyFile(): void {
+        oneMoneyInput.value?.click();
+    }
+
+    const plural = (count: number, one: string, many: string): string => `${count} ${count === 1 ? one : many}`;
+
+    /** The summary shown before anything is written - an import is easy to start by accident. */
+    function describePlan(plan: ImportPlan): string {
+        const lines = [
+            `Backup from <b>${plan.takenAt}</b>.`,
+            `<b>${plan.transactions.length}</b> transactions from ${plan.dateFrom} to ${plan.dateTo}: ` +
+                `${settings.money(plan.totals.expense)} spent, ${settings.money(plan.totals.income)} received.`,
+            `New: ${plural(plan.accounts.length, "account", "accounts")}, ` +
+                `${plural(plan.groups.length, "category", "categories")}, ` +
+                `${plural(plan.subcategories.length, "subcategory", "subcategories")}.`,
+        ];
+        const matched = plan.matched.accounts + plan.matched.groups + plan.matched.subcategories;
+        if (matched > 0) {
+            lines.push(`${matched} accounts and categories matched by name to the ones you already have.`);
+        }
+        if (plan.accounts.length > 0) {
+            lines.push("1Money keeps no starting balance in the backup, so the new accounts start from zero - set it in Accounts.");
+        }
+        if (plan.skipped.scheduled > 0) {
+            lines.push(`${plural(plan.skipped.scheduled, "scheduled future entry is", "scheduled future entries are")} left out.`);
+        }
+        if (plan.skipped.alreadyImported > 0) {
+            lines.push(`${plan.skipped.alreadyImported} were imported from this file before and are skipped.`);
+        }
+        if (plan.skipped.unresolved > 0) {
+            lines.push(`${plan.skipped.unresolved} rows could not be read and are skipped.`);
+        }
+        lines.push("Your current data stays - the import only adds.");
+        return lines.join("<br>");
+    }
+
+    async function onOneMoneyChosen(event: Event): Promise<void> {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        if (!file) {
+            return;
+        }
+        importing.value = true;
+        try {
+            const plan = await prepareOneMoneyImport(file);
+            if (plan.transactions.length === 0) {
+                ElMessage.info(
+                    plan.skipped.alreadyImported > 0 ? "Everything in this file is already imported" : "No transactions found in the file",
+                );
+                return;
+            }
+            await ElMessageBox.confirm(describePlan(plan), "Import from 1Money", {
+                dangerouslyUseHTMLString: true,
+                confirmButtonText: `Add ${plan.transactions.length}`,
+                cancelButtonText: "Cancel",
+            });
+            applyImportPlan(plan);
+            ElMessage.success(`Imported ${plan.transactions.length} transactions`);
+        } catch (error) {
+            if (error instanceof Error && error.message) {
+                ElMessage.error(error.message);
+            }
+        } finally {
+            importing.value = false;
             input.value = "";
         }
     }
@@ -132,14 +204,18 @@
 
             <p class="settings__note ft-muted">
                 Everything is kept in this browser only, nothing goes to a server. Clearing the site data in your browser will erase the
-                records - so make backups.
+                records - so make backups. A backup file from the 1Money app can be imported as well: its accounts and categories are
+                matched to yours by name, and the transactions are added to what you already have.
             </p>
 
             <div class="settings__actions">
                 <el-button type="primary" @click="downloadBackup">Download a backup (JSON)</el-button>
                 <el-button @click="pickFile">Restore from a file</el-button>
                 <el-button @click="downloadCsv">Export transactions to CSV</el-button>
+                <el-button :loading="importing" @click="pickOneMoneyFile">Import from 1Money</el-button>
                 <input ref="fileInput" type="file" accept="application/json,.json" hidden @change="onFileChosen" />
+                <!-- No `accept` filter: the file 1Money hands out has no extension at all. -->
+                <input ref="oneMoneyInput" type="file" hidden @change="onOneMoneyChosen" />
             </div>
 
             <dl class="settings__stats">

@@ -75,6 +75,12 @@ export interface Transaction {
     createdAt: number;
     /** Set when the transaction was created from a recurring rule. */
     recurringId?: string;
+    /**
+     * Where the record came from when it was imported from another tracker, for example
+     * `1money:515579402442752`. Importing the same file twice skips the rows that carry an id
+     * already present here.
+     */
+    sourceId?: string;
 }
 
 /** A recurring transaction template (subscriptions, rent, salary). */

@@ -12,6 +12,7 @@ JSON export/import.
 - Vue Router (hash mode, so `dist` runs from any host without rewrite rules)
 - Element Plus for UI (auto-imported per component by `unplugin-vue-components`, so only what the
   templates use ends up in the bundle), ApexCharts for charts
+- sql.js (SQLite compiled to WebAssembly) - loaded on demand, only to read a 1Money backup
 - ESLint (flat config) + Prettier
 
 ## Getting started
@@ -41,6 +42,8 @@ src/
     date.ts              ISO dates, billing periods, recurrence stepping
     color.ts             iconTint() — the shared look for category and account icons
     backup.ts            JSON export/import and CSV export
+    sqlite.ts            opens an SQLite file in the browser (sql.js, loaded on demand)
+    import1money.ts      reads a 1Money backup and prepares the records to add
   stores/                Pinia: accounts, categories, transactions, recurring, budgets, period, settings
   data/                  seed.ts (starter accounts and categories), recurrence.ts (recurrence presets),
                          icons.ts (the icon set offered for accounts and categories)
@@ -66,6 +69,15 @@ thousands of transactions. If that ever becomes tight, or cross-device sync is n
 only `utils/storage.ts` and its call sites change; the rest of the app talks to stores.
 If a write ever fails (the quota is full, or the browser blocks storage), the app says so in a
 message that does not disappear on its own - silently losing entries would be worse.
+
+**Importing from 1Money.** `Settings → Import from 1Money` takes the backup file the Android
+app produces - an SQLite database, so sql.js is fetched the first time a file is picked and
+never on a normal visit. The file holds every daily snapshot the app ever made; only the newest
+one is read. Accounts and categories are matched to the existing ones by name (a "Card" in the
+file lands in your own "Card"), the rest are created with their 1Money colours, and every
+transaction remembers the row it came from - importing the same file twice adds nothing. Entries
+scheduled for a future date are left out, and because the backup carries no opening balance, new
+accounts start from zero.
 
 **Categories.** Two levels: `CategoryGroup` (with icon and colour) and `Subcategory`.
 The `kind` field keeps the expense and income trees independent.
