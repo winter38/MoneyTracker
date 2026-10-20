@@ -94,7 +94,7 @@
      * The donut size is given as a number, and the container height is pinned to that same number:
      * if the chart box and the label box have different heights, the text in the centre drifts.
      */
-    const donutSize = computed(() => (isMobile.value ? 210 : 240));
+    const donutSize = computed(() => (isMobile.value ? 146 : 240));
 
     /**
      * There is little room in the tiles and in the centre of the ring: large amounts are abbreviated
@@ -195,6 +195,11 @@
         justify-content: center;
         /* Exactly the chart height: the labels sit on top of this same box. */
         height: var(--donut-size);
+        /* The chart is as wide as its box, so the padding is what keeps the circle from
+           touching the tiles on either side of it. */
+        padding: 0 14px;
+        /* The two rows next to the circle are taller than it is - sit in the middle of them. */
+        align-self: center;
     }
 
     .ring__empty {
@@ -269,10 +274,14 @@
         -webkit-line-clamp: 2;
         line-clamp: 2;
         -webkit-box-orient: vertical;
+        /* Centred inside a box that is always two lines tall: a short name and a wrapped one
+           then leave the icon below them in exactly the same place, whatever the month shows. */
+        -webkit-box-pack: center;
         overflow: hidden;
-        min-height: 2.5em;
+        height: 2.5em;
         text-align: center;
-        word-break: break-word;
+        /* A single long word ("Entertainment") breaks instead of running out of the tile. */
+        overflow-wrap: anywhere;
     }
 
     .tile__planned {
@@ -301,6 +310,8 @@
 
     .tile__spent {
         font-size: 13px;
+        line-height: 1.3;
+        min-height: 1.3em;
         font-weight: 600;
         font-variant-numeric: tabular-nums;
     }
