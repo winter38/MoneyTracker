@@ -8,16 +8,21 @@
     import AppNav from "@/components/layout/AppNav.vue";
     import QuickAddSheet from "@/components/transactions/QuickAddSheet.vue";
     import { useBreakpoint } from "@/composables/useBreakpoint";
+    import { useScrollHide } from "@/composables/useScrollHide";
     import { storageFailed } from "@/utils/persist";
 
     const route = useRoute();
     const { isMobile } = useBreakpoint();
+    const { hidden: fabHidden, reveal: revealFab } = useScrollHide();
 
     const sheetRef = ref<InstanceType<typeof QuickAddSheet> | null>(null);
 
     /** Manage and Settings are sub-pages: no shared header and no "+" button. */
     const isSubPage = computed(() => ["manage", "settings"].includes(String(route.name)));
     const showHeader = computed(() => !isSubPage.value);
+
+    /** A new page starts at its own scroll position, so the button must not stay hidden. */
+    watch(() => route.name, revealFab);
 
     /**
      * The data lives in localStorage only, so a failed write means the entries are lost on reload.
@@ -78,6 +83,7 @@
             <button
                 v-if="isMobile && !isSubPage"
                 class="app__fab ft-icon-btn"
+                :class="{ 'app__fab--hidden': fabHidden }"
                 type="button"
                 aria-label="Add transaction"
                 @click="openQuickAdd"
@@ -128,6 +134,22 @@
         box-shadow: 0 6px 20px rgba(42, 120, 214, 0.45);
         cursor: pointer;
         z-index: 1200;
+        transition:
+            transform 180ms ease,
+            opacity 180ms ease;
+    }
+
+    /* Scrolling down hands the bottom right corner back to the list, where the amounts are. */
+    .app__fab--hidden {
+        transform: translateY(96px) scale(0.85);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .app__fab {
+            transition: none;
+        }
     }
 
     .app__fab:active {
