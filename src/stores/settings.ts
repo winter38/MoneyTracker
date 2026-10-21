@@ -4,7 +4,10 @@ import { computed, ref, watch } from "vue";
 import type { Settings } from "@/types/models";
 import { STORAGE_KEYS, loadState } from "@/utils/storage";
 import { persist } from "@/utils/persist";
-import { formatMoney } from "@/utils/money";
+import { formatCompact, formatMoney } from "@/utils/money";
+
+/** Amounts at or above this are abbreviated where space is tight. */
+const COMPACT_FROM = 100_000;
 
 const DEFAULTS: Settings = {
     currency: "EUR",
@@ -37,6 +40,17 @@ export const useSettingsStore = defineStore("settings", () => {
         () => (value: number, options?: Intl.NumberFormatOptions) => formatMoney(value, state.value.currency, state.value.locale, options),
     );
 
+    /**
+     * Money for the tight spots - the summary tiles and the category ring, where three amounts
+     * share the width of a phone. Past six figures the full number either collides with its
+     * neighbour or wraps mid-digits, so it is abbreviated ("1.2M EUR"); the exact figure is
+     * always a scroll away in the list below.
+     */
+    const compactMoney = computed(
+        () => (value: number) =>
+            Math.abs(value) >= COMPACT_FROM ? `${formatCompact(value, state.value.locale)} ${currencySymbol.value}` : money.value(value),
+    );
+
     function update(patch: Partial<Settings>): void {
         state.value = { ...state.value, ...patch };
     }
@@ -57,6 +71,7 @@ export const useSettingsStore = defineStore("settings", () => {
         locale,
         monthStartDay,
         money,
+        compactMoney,
         update,
         applyTheme,
         replaceAll: (value: Settings) => (state.value = value),

@@ -26,16 +26,16 @@
         <section class="ft-card accounts-view__summary">
             <div>
                 <span class="ft-muted">Income for the period</span>
-                <strong class="ft-amount ft-amount--income">{{ settings.money(periodIncome) }}</strong>
+                <strong class="ft-amount ft-amount--income">{{ settings.compactMoney(periodIncome) }}</strong>
             </div>
             <div>
                 <span class="ft-muted">Expenses for the period</span>
-                <strong class="ft-amount ft-amount--expense">{{ settings.money(periodExpense) }}</strong>
+                <strong class="ft-amount ft-amount--expense">{{ settings.compactMoney(periodExpense) }}</strong>
             </div>
             <div>
                 <span class="ft-muted">Net</span>
                 <strong class="ft-amount" :class="periodFlow < 0 ? 'ft-amount--expense' : 'ft-amount--income'">
-                    {{ periodFlow >= 0 ? "+" : "−" }}{{ settings.money(Math.abs(periodFlow)) }}
+                    {{ periodFlow >= 0 ? "+" : "−" }}{{ settings.compactMoney(Math.abs(periodFlow)) }}
                 </strong>
             </div>
         </section>
@@ -54,14 +54,24 @@
     .accounts-view__summary {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
+        grid-template-rows: auto auto;
+        column-gap: 10px;
+        row-gap: 2px;
     }
 
+    /*
+        The three labels do not wrap alike - "Net" takes one line where the other two take two -
+        so a column of its own would lift its amount above the neighbours. Subgrid puts every
+        label in the first shared row and every amount in the second, which lines them up.
+        Browsers without subgrid simply fall back to the stacked layout this replaced.
+    */
     .accounts-view__summary div {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
+        display: grid;
+        grid-row: span 2;
+        grid-template-rows: subgrid;
+        row-gap: 2px;
         font-size: 12px;
+        min-width: 0;
     }
 
     .accounts-view__summary strong {

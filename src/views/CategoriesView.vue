@@ -10,7 +10,7 @@
     import { useSettingsStore } from "@/stores/settings";
     import { useTransactionsStore } from "@/stores/transactions";
     import { useBreakpoint } from "@/composables/useBreakpoint";
-    import { formatCompact, round2 } from "@/utils/money";
+    import { round2 } from "@/utils/money";
     import { iconTint } from "@/utils/color";
 
     /**
@@ -95,14 +95,6 @@
      * if the chart box and the label box have different heights, the text in the centre drifts.
      */
     const donutSize = computed(() => (isMobile.value ? 146 : 240));
-
-    /**
-     * There is little room in the tiles and in the centre of the ring: large amounts are abbreviated
-     * ("2.2M EUR"), otherwise the lines overlap each other.
-     */
-    function compactMoney(value: number): string {
-        return Math.abs(value) >= 100000 ? `${formatCompact(value, settings.locale)} ${settings.currencySymbol}` : settings.money(value);
-    }
 </script>
 
 <template>
@@ -130,9 +122,9 @@
                 <span class="tile__name">{{ row.name }}</span>
                 <span class="tile__icon" :style="iconTint(row.color)"><AppIcon :icon="row.icon" /></span>
                 <span class="tile__spent" :style="{ color: row.spent > 0 ? row.color : 'var(--ft-text-muted)' }">
-                    {{ compactMoney(row.spent) }}
+                    {{ settings.compactMoney(row.spent) }}
                 </span>
-                <span v-if="row.planned > 0" class="tile__planned ft-muted">of {{ compactMoney(row.planned) }}</span>
+                <span v-if="row.planned > 0" class="tile__planned ft-muted">of {{ settings.compactMoney(row.planned) }}</span>
             </button>
 
             <div class="ring__center">
@@ -154,10 +146,10 @@
                 <div class="ring__labels">
                     <span class="ft-muted">{{ kind === "expense" ? "Expenses" : "Income" }}</span>
                     <strong class="ft-amount" :class="kind === 'expense' ? 'ft-amount--expense' : 'ft-amount--income'">
-                        {{ compactMoney(kind === "expense" ? expenseTotal : incomeTotal) }}
+                        {{ settings.compactMoney(kind === "expense" ? expenseTotal : incomeTotal) }}
                     </strong>
                     <span class="ft-amount ring__secondary" :class="netto < 0 ? 'ft-amount--expense' : 'ft-amount--income'">
-                        {{ compactMoney(kind === "expense" ? incomeTotal : expenseTotal) }}
+                        {{ settings.compactMoney(kind === "expense" ? incomeTotal : expenseTotal) }}
                     </span>
                 </div>
             </div>

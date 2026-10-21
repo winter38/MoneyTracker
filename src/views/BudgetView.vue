@@ -74,16 +74,16 @@
             <div class="budget__totals">
                 <div>
                     <span class="ft-muted">Plan</span>
-                    <strong class="ft-amount">{{ settings.money(expenseTotals.planned) }}</strong>
+                    <strong class="ft-amount">{{ settings.compactMoney(expenseTotals.planned) }}</strong>
                 </div>
                 <div>
                     <span class="ft-muted">Spent</span>
-                    <strong class="ft-amount ft-amount--expense">{{ settings.money(expenseTotals.spent) }}</strong>
+                    <strong class="ft-amount ft-amount--expense">{{ settings.compactMoney(expenseTotals.spent) }}</strong>
                 </div>
                 <div>
                     <span class="ft-muted">{{ left >= 0 ? "Left" : "Over plan" }}</span>
                     <strong class="ft-amount" :class="left >= 0 ? 'ft-amount--income' : 'ft-amount--expense'">
-                        {{ settings.money(Math.abs(left)) }}
+                        {{ settings.compactMoney(Math.abs(left)) }}
                     </strong>
                 </div>
             </div>
