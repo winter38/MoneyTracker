@@ -14,6 +14,7 @@
     import { useRecurringStore } from "@/stores/recurring";
     import { useSettingsStore } from "@/stores/settings";
     import { useTransactionsStore } from "@/stores/transactions";
+    import { iconTint } from "@/utils/color";
     import { addPeriod, formatDate, today } from "@/utils/date";
     import { round2 } from "@/utils/money";
 
@@ -29,6 +30,9 @@
 
     /** Which half of the header is currently open for picking. */
     const picker = ref<"none" | "from" | "to">("none");
+
+    /** Set while the picker was opened by the "Other" chip - it then starts inside that group. */
+    const pickerGroupId = ref<string | undefined>(undefined);
 
     const form = reactive({
         kind: "expense" as TxKind,
@@ -221,7 +225,32 @@
         };
     });
 
-    const subcategoryName = computed(() => categories.subcategoryById(form.subcategoryId)?.name);
+    /**
+     * The subcategory row under the header. The subcategories of the chosen group are right there
+     * as chips, so the usual choice is a single tap; a group with a long list shows the first few
+     * and an "Other" chip that opens the picker already inside the group.
+     */
+    const MAX_SUBCATEGORY_CHIPS = 3;
+
+    const groupChildren = computed(() => (form.groupId && !isTransfer.value ? categories.childrenOf(form.groupId) : []));
+
+    const subcategoryChips = computed(() => {
+        const children = groupChildren.value;
+        if (children.length <= MAX_SUBCATEGORY_CHIPS + 1) {
+            return children;
+        }
+        const chips = children.slice(0, MAX_SUBCATEGORY_CHIPS);
+        const selected = children.find((item) => item.id === form.subcategoryId);
+        // One picked through "Other" takes the last slot, so the current choice stays in sight.
+        return selected && !chips.includes(selected) ? [...chips.slice(0, -1), selected] : chips;
+    });
+
+    const hasMoreSubcategories = computed(() => groupChildren.value.length > subcategoryChips.value.length);
+
+    /** Tapping the active chip again clears the subcategory - the transaction stays in the group. */
+    function toggleSubcategory(id: string): void {
+        form.subcategoryId = form.subcategoryId === id ? undefined : id;
+    }
 
     const kindLabel = computed(() => (form.kind === "expense" ? "Expense" : form.kind === "income" ? "Income" : "Transfer"));
 
@@ -249,6 +278,21 @@
     });
 
     const pickerTitle = computed(() => (picker.value === "from" ? leftSide.value.caption : rightSide.value.caption));
+
+    function openPicker(side: "from" | "to"): void {
+        pickerGroupId.value = undefined;
+        picker.value = side;
+    }
+
+    function openSubcategoryPicker(): void {
+        pickerGroupId.value = form.groupId;
+        picker.value = isIncome.value ? "from" : "to";
+    }
+
+    function closePicker(): void {
+        picker.value = "none";
+        pickerGroupId.value = undefined;
+    }
 
     function onPickAccount(id: string): void {
         // For a transfer the left half is the source account and the right one is the destination.
@@ -385,7 +429,7 @@
 
                 <!-- The two-color header: tapping a half picks the account or the category -->
                 <div class="head" :style="{ '--head-right': rightSide.color }">
-                    <button type="button" class="head__half" :style="{ background: leftSide.color }" @click="picker = 'from'">
+                    <button type="button" class="head__half" :style="{ background: leftSide.color }" @click="openPicker('from')">
                         <span class="head__caption">{{ leftSide.caption }}</span>
                         <span class="head__title">{{ leftSide.title }}</span>
                     </button>
@@ -394,7 +438,7 @@
                         type="button"
                         class="head__half head__half--right"
                         :style="{ background: rightSide.color }"
-                        @click="picker = 'to'"
+                        @click="openPicker('to')"
                     >
                         <span class="head__caption">{{ rightSide.caption }}</span>
                         <span class="head__title">{{ rightSide.title }}</span>
@@ -405,15 +449,21 @@
                 </div>
 
                 <div class="sheet__body">
-                    <button
-                        v-if="!isTransfer && form.groupId"
-                        type="button"
-                        class="subcategory"
-                        :style="{ borderColor: rightSide.color, color: rightSide.color }"
-                        @click="picker = isIncome ? 'from' : 'to'"
-                    >
-                        {{ subcategoryName ?? "No subcategory" }}
-                    </button>
+                    <div v-if="subcategoryChips.length || hasMoreSubcategories" class="subs">
+                        <button
+                            v-for="item in subcategoryChips"
+                            :key="item.id"
+                            type="button"
+                            class="subs__chip"
+                            :class="{ 'subs__chip--on': form.subcategoryId === item.id }"
+                            :style="form.subcategoryId === item.id ? iconTint(rightSide.color) : undefined"
+                            @click="toggleSubcategory(item.id)"
+                        >
+                            {{ item.name }}
+                        </button>
+
+                        <button v-if="hasMoreSubcategories" type="button" class="subs__chip" @click="openSubcategoryPicker">Other…</button>
+                    </div>
 
                     <p class="sheet__kind-label" :class="`sheet__kind-label--${form.kind}`">{{ kindLabel }}</p>
 
@@ -482,7 +532,8 @@
                 :exclude-account-id="isTransfer ? (picker === 'to' ? form.accountId : form.toAccountId) : undefined"
                 :selected-group-id="form.groupId"
                 :selected-subcategory-id="form.subcategoryId"
-                @close="picker = 'none'"
+                :start-in-group-id="pickerGroupId"
+                @close="closePicker"
                 @pick-account="onPickAccount"
                 @pick-category="onPickCategory"
             />
@@ -638,18 +689,36 @@
         overflow-y: auto;
     }
 
-    .subcategory {
+    /* The subcategories of the chosen group, one tap away from the amount. */
+    .subs {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
         max-width: 100%;
-        padding: 6px 16px;
-        border: 1.5px solid currentColor;
-        border-radius: 18px;
+    }
+
+    .subs__chip {
+        max-width: 150px;
+        padding: 5px 12px;
+        border: 1px solid var(--ft-border);
+        border-radius: 16px;
         background: transparent;
         font: inherit;
-        font-size: 14px;
+        font-size: 13px;
+        line-height: 1.2;
+        color: var(--ft-text-secondary);
         cursor: pointer;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* The selected chip is filled in the colour of the category, the same tint the icons use. */
+    .subs__chip--on {
+        border-color: transparent;
+        font-weight: 600;
     }
 
     .sheet__kind-label {

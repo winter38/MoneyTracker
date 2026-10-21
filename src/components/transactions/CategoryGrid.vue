@@ -17,6 +17,8 @@
         subcategoryId?: string;
         /** Show under the icon how much has already been spent in the category this period. */
         showAmounts?: boolean;
+        /** Open the grid already inside this group, skipping the list of groups. */
+        startInGroupId?: string;
     }>();
 
     /**
@@ -31,7 +33,7 @@
     const transactions = useTransactionsStore();
 
     /** The group we drilled into. null means the top level is shown. */
-    const openGroupId = ref<string | null>(null);
+    const openGroupId = ref<string | null>(props.startInGroupId ?? null);
 
     /** Spending per group for the selected month - the labels under the icons. */
     const groupTotals = computed(() => (props.showAmounts ? transactions.totalsByGroup(props.kind, period.from, period.to) : {}));

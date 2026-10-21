@@ -19,6 +19,8 @@
         excludeAccountId?: string;
         selectedGroupId?: string;
         selectedSubcategoryId?: string;
+        /** Open the category grid inside this group - used by the "Other" subcategory chip. */
+        startInGroupId?: string;
     }>();
 
     const emit = defineEmits<{
@@ -65,6 +67,7 @@
                     show-amounts
                     :group-id="selectedGroupId"
                     :subcategory-id="selectedSubcategoryId"
+                    :start-in-group-id="startInGroupId"
                     @select="(groupId, subcategoryId, final) => emit('pickCategory', groupId, subcategoryId, final)"
                 />
             </section>
