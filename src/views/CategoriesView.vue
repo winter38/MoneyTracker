@@ -136,7 +136,19 @@
             </button>
 
             <div class="ring__center">
-                <apexchart v-if="charted.length" type="donut" :height="donutSize" :options="donutOptions" :series="donutSeries" />
+                <!--
+                    The width is set as well as the height: left to itself ApexCharts falls back to a
+                    300px canvas, and that invisible SVG then lies on top of the tiles beside the ring
+                    and swallows the taps meant for them.
+                -->
+                <apexchart
+                    v-if="charted.length"
+                    type="donut"
+                    :width="donutSize"
+                    :height="donutSize"
+                    :options="donutOptions"
+                    :series="donutSeries"
+                />
                 <div v-else class="ring__empty" />
 
                 <div class="ring__labels">
@@ -198,6 +210,8 @@
         /* The chart is as wide as its box, so the padding is what keeps the circle from
            touching the tiles on either side of it. */
         padding: 0 14px;
+        /* Nothing the chart draws may reach over the neighbouring tiles and steal their taps. */
+        overflow: hidden;
         /* The two rows next to the circle are taller than it is - sit in the middle of them. */
         align-self: center;
     }
