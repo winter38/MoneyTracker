@@ -4,12 +4,14 @@
 
     import type { CategoryKind } from "@/types/models";
     import AppIcon from "@/components/common/AppIcon.vue";
+    import CategorySheet from "@/components/categories/CategorySheet.vue";
     import { useBudgetsStore } from "@/stores/budgets";
     import { useCategoriesStore } from "@/stores/categories";
     import { usePeriodStore } from "@/stores/period";
     import { useSettingsStore } from "@/stores/settings";
     import { useTransactionsStore } from "@/stores/transactions";
     import { useBreakpoint } from "@/composables/useBreakpoint";
+    import { useLongPress } from "@/composables/useLongPress";
     import { round2 } from "@/utils/money";
     import { iconTint } from "@/utils/color";
 
@@ -31,6 +33,17 @@
 
     const isDark = computed(() => document.documentElement.classList.contains("dark"));
 
+    /** How many transactions each group holds in this period - shown on the details sheet. */
+    const counts = computed(() => {
+        const map: Record<string, number> = {};
+        transactions.filter({ kinds: [kind.value], dateFrom: period.from, dateTo: period.to }).forEach((tx) => {
+            if (tx.groupId !== undefined) {
+                map[tx.groupId] = (map[tx.groupId] ?? 0) + 1;
+            }
+        });
+        return map;
+    });
+
     const rows = computed(() => {
         const totals = transactions.totalsByGroup(kind.value, period.from, period.to);
         return categories
@@ -42,6 +55,7 @@
                 color: node.group.color,
                 spent: totals[node.group.id] ?? 0,
                 planned: budgets.amountFor(node.group.id),
+                count: counts.value[node.group.id] ?? 0,
             }))
             .sort((a, b) => b.spent - a.spent);
     });
@@ -65,6 +79,40 @@
     }));
 
     const donutSeries = computed(() => charted.value.map((row) => row.spent));
+
+    /**
+     * Holding a tile opens its details instead of adding a transaction: the quickest way
+     * to the entries already booked to that category this month.
+     */
+    const heldId = ref<string | null>(null);
+    const held = computed(() => rows.value.find((row) => row.id === heldId.value) ?? null);
+    const press = useLongPress<string>((id) => (heldId.value = id));
+
+    function onTileClick(groupId: string): void {
+        // A hold is followed by a click on most browsers - without this the tile would also
+        // open the add screen behind the sheet.
+        if (press.consumed()) {
+            return;
+        }
+        emit("addToCategory", groupId, kind.value);
+    }
+
+    function openHeld(path: string, query?: Record<string, string>): void {
+        heldId.value = null;
+        router.push({ path, query });
+    }
+
+    /**
+     * The list lands filtered to this category and this period. The dates travel in the query
+     * rather than relying on the period store, so the link survives a reload.
+     */
+    function showHeldTransactions(): void {
+        const groupId = heldId.value;
+        if (groupId === null) {
+            return;
+        }
+        openHeld("/transactions", { group: groupId, from: period.from, to: period.to });
+    }
 
     /**
      * The ring layout: four tiles on top, one on each side of the donut,
@@ -117,7 +165,13 @@
                 type="button"
                 class="tile"
                 :style="tileStyle(index)"
-                @click="emit('addToCategory', row.id, kind)"
+                @pointerdown="press.start($event, row.id)"
+                @pointermove="press.move"
+                @pointerup="press.cancel"
+                @pointerleave="press.cancel"
+                @pointercancel="press.cancel"
+                @contextmenu.prevent
+                @click="onTileClick(row.id)"
             >
                 <span class="tile__name">{{ row.name }}</span>
                 <span class="tile__icon" :style="iconTint(row.color)"><AppIcon :icon="row.icon" /></span>
@@ -156,7 +210,24 @@
         </div>
 
         <p v-if="!rows.length" class="ft-empty">No categories yet - add them in Manage</p>
-        <p v-else class="categories__hint ft-muted">Tap a category to record a transaction in it</p>
+        <p v-else class="categories__hint ft-muted">Tap a category to record a transaction, hold it to see what is already there</p>
+
+        <CategorySheet
+            v-if="held"
+            :open="held !== null"
+            :name="held.name"
+            :icon="held.icon"
+            :color="held.color"
+            :spent="held.spent"
+            :planned="held.planned"
+            :count="held.count"
+            :period-label="period.label"
+            :period-total="kind === 'expense' ? expenseTotal : incomeTotal"
+            @close="heldId = null"
+            @edit="openHeld('/manage')"
+            @budget="openHeld('/budget')"
+            @transactions="showHeldTransactions"
+        />
     </div>
 </template>
 
@@ -264,6 +335,13 @@
         color: inherit;
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
+        /*
+            Holding a tile is our own gesture: without these the browser answers it first -
+            Android starts selecting the label, iOS throws up its callout menu.
+        */
+        user-select: none;
+        -webkit-touch-callout: none;
+        touch-action: manipulation;
     }
 
     .tile:active {

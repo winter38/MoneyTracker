@@ -19,6 +19,7 @@ declare module 'vue' {
     DArrowLeft: typeof import('@element-plus/icons-vue')['DArrowLeft']
     DArrowRight: typeof import('@element-plus/icons-vue')['DArrowRight']
     Delete: typeof import('@element-plus/icons-vue')['Delete']
+    Edit: typeof import('@element-plus/icons-vue')['Edit']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCascader: typeof import('element-plus/es')['ElCascader']
     ElConfigProvider: typeof import('element-plus/es')['ElConfigProvider']
@@ -42,6 +43,7 @@ declare module 'vue' {
     Menu: typeof import('@element-plus/icons-vue')['Menu']
     Moon: typeof import('@element-plus/icons-vue')['Moon']
     MoreFilled: typeof import('@element-plus/icons-vue')['MoreFilled']
+    PieChart: typeof import('@element-plus/icons-vue')['PieChart']
     Plus: typeof import('@element-plus/icons-vue')['Plus']
     RefreshLeft: typeof import('@element-plus/icons-vue')['RefreshLeft']
     RefreshRight: typeof import('@element-plus/icons-vue')['RefreshRight']
@@ -49,5 +51,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     Setting: typeof import('@element-plus/icons-vue')['Setting']
     Sunny: typeof import('@element-plus/icons-vue')['Sunny']
+    Tickets: typeof import('@element-plus/icons-vue')['Tickets']
   }
 }

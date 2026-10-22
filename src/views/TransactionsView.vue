@@ -1,5 +1,6 @@
 <script setup lang="ts">
-    import { computed, reactive, ref } from "vue";
+    import { computed, reactive, ref, watch } from "vue";
+    import { useRoute } from "vue-router";
 
     import AppIcon from "@/components/common/AppIcon.vue";
     import TransactionList from "@/components/transactions/TransactionList.vue";
@@ -25,6 +26,28 @@
         range: null as [string, string] | null,
         search: "",
     });
+
+    const route = useRoute();
+
+    /**
+     * Arrived from holding a category tile: the group and the period come in the query, so the
+     * list opens already narrowed instead of making the user rebuild that in the filter panel.
+     * Watched rather than read once, because the view is not rebuilt if it is already open.
+     */
+    watch(
+        () => route.query,
+        (query) => {
+            const group = typeof query.group === "string" ? query.group : "";
+            if (group === "") {
+                return;
+            }
+            const from = typeof query.from === "string" ? query.from : "";
+            const to = typeof query.to === "string" ? query.to : "";
+            filters.groupIds = [group];
+            filters.range = from !== "" && to !== "" ? [from, to] : null;
+        },
+        { immediate: true },
+    );
 
     const filtered = computed(() =>
         transactions.filter({
