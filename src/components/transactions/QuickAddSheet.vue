@@ -388,10 +388,14 @@
         close();
     }
 
+    /** Guards against a second confirmation: one tap too many used to stack another dialog. */
+    const confirmingDelete = ref(false);
+
     async function removeCurrent(): Promise<void> {
-        if (!editingId.value) {
+        if (!editingId.value || confirmingDelete.value) {
             return;
         }
+        confirmingDelete.value = true;
         try {
             await ElMessageBox.confirm("Delete this transaction?", "Delete", {
                 type: "warning",
@@ -403,6 +407,8 @@
             close();
         } catch {
             // Cancelled by the user.
+        } finally {
+            confirmingDelete.value = false;
         }
     }
 </script>

@@ -61,8 +61,12 @@
         Element Plus is no longer installed as a global plugin (it is auto-imported per component),
         so its locale and default size are configured here instead. On a narrow screen the controls
         are larger: 32px tall fields are hard to hit with a finger.
+
+        z-index starts above the sheets (2600 QuickAdd, 2700 Picker, 2800 Date): Element Plus
+        counts up from 2000 by default, so a confirmation opened from inside a sheet landed
+        behind it and the tap looked like it had done nothing.
     -->
-    <el-config-provider :locale="en" :size="isMobile ? 'large' : 'default'">
+    <el-config-provider :locale="en" :size="isMobile ? 'large' : 'default'" :z-index="3000">
         <div class="app" :class="{ 'app--mobile': isMobile }">
             <AppNav :is-mobile="isMobile" @add="openQuickAdd" />
 

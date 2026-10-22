@@ -183,10 +183,10 @@ body {
     }
 }
 
-.el-overlay {
-    /* Modals must sit above the bottom navigation on a phone. */
-    z-index: 2500;
-}
+/*
+ * Element Plus writes the z-index of its overlays inline, which beats any rule set here,
+ * so the stacking order is configured on <el-config-provider> in App.vue instead.
+ */
 
 /*
  * On a phone every control is larger: by default Element Plus renders 32px tall
