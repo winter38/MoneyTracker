@@ -3,6 +3,7 @@
 
     import AppIcon from "@/components/common/AppIcon.vue";
     import { useSettingsStore } from "@/stores/settings";
+    import { useBackClose } from "@/composables/useBackClose";
 
     /**
      * What one category adds up to in the selected period - opened by holding its tile.
@@ -26,6 +27,11 @@
     const emit = defineEmits<{ close: []; edit: []; budget: []; transactions: [] }>();
 
     const settings = useSettingsStore();
+
+    useBackClose(
+        () => props.open,
+        () => emit("close"),
+    );
 
     /** Capped at 100 so the bar cannot overflow; the figure beside it still shows the excess. */
     const progress = computed(() => (props.planned > 0 ? Math.min(100, Math.round((props.spent / props.planned) * 100)) : 0));

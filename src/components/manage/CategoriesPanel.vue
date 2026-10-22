@@ -5,6 +5,7 @@
     import type { CategoryGroup, CategoryKind } from "@/types/models";
     import AppIcon from "@/components/common/AppIcon.vue";
     import IconPicker from "@/components/common/IconPicker.vue";
+    import { useBackClose } from "@/composables/useBackClose";
     import { DEFAULT_EXPENSE_ICON, DEFAULT_INCOME_ICON } from "@/data/icons";
     import { PALETTE } from "@/data/seed";
     import { useCategoriesStore } from "@/stores/categories";
@@ -23,6 +24,16 @@
     const subParentId = ref<string | null>(null);
     const editingSubId = ref<string | null>(null);
     const subName = ref("");
+
+    // Back on the phone shuts the dialog instead of leaving the page behind it.
+    useBackClose(
+        () => groupDialog.value,
+        () => (groupDialog.value = false),
+    );
+    useBackClose(
+        () => subDialog.value,
+        () => (subDialog.value = false),
+    );
 
     function toggle(groupId: string): void {
         const next = new Set(expanded.value);

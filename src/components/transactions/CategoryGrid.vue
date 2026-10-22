@@ -3,6 +3,7 @@
 
     import type { CategoryKind } from "@/types/models";
     import AppIcon from "@/components/common/AppIcon.vue";
+    import { useBackClose } from "@/composables/useBackClose";
     import { useCategoriesStore } from "@/stores/categories";
     import { usePeriodStore } from "@/stores/period";
     import { useSettingsStore } from "@/stores/settings";
@@ -34,6 +35,12 @@
 
     /** The group we drilled into. null means the top level is shown. */
     const openGroupId = ref<string | null>(props.startInGroupId ?? null);
+
+    // Back steps out of the group, the same as the "All categories" button.
+    useBackClose(
+        () => openGroupId.value !== null,
+        () => (openGroupId.value = null),
+    );
 
     /** Spending per group for the selected month - the labels under the icons. */
     const groupTotals = computed(() => (props.showAmounts ? transactions.totalsByGroup(props.kind, period.from, period.to) : {}));

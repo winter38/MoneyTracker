@@ -5,6 +5,7 @@
     import type { RecurringRule, TxKind } from "@/types/models";
     import AppIcon from "@/components/common/AppIcon.vue";
     import CategoryPicker from "@/components/transactions/CategoryPicker.vue";
+    import { useBackClose } from "@/composables/useBackClose";
     import { RECURRING_ICON, TRANSFER_ICON } from "@/data/icons";
     import { RECURRENCE_PRESETS, describeRecurrence, presetByKey } from "@/data/recurrence";
     import { useAccountsStore } from "@/stores/accounts";
@@ -26,6 +27,12 @@
 
     const dialogVisible = ref(false);
     const editingId = ref<string | null>(null);
+
+    // Back on the phone shuts the dialog instead of leaving the page behind it.
+    useBackClose(
+        () => dialogVisible.value,
+        () => (dialogVisible.value = false),
+    );
 
     const form = reactive({
         title: "",

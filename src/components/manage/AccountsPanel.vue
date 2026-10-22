@@ -5,6 +5,7 @@
     import type { Account } from "@/types/models";
     import AppIcon from "@/components/common/AppIcon.vue";
     import IconPicker from "@/components/common/IconPicker.vue";
+    import { useBackClose } from "@/composables/useBackClose";
     import { DEFAULT_ACCOUNT_ICON } from "@/data/icons";
     import { PALETTE } from "@/data/seed";
     import { useAccountsStore } from "@/stores/accounts";
@@ -18,6 +19,12 @@
     const dialogVisible = ref(false);
     const editingId = ref<string | null>(null);
     const form = reactive({ name: "", icon: DEFAULT_ACCOUNT_ICON, color: PALETTE[0] as string, initialBalance: "0" });
+
+    // Back on the phone shuts the dialog instead of leaving the page behind it.
+    useBackClose(
+        () => dialogVisible.value,
+        () => (dialogVisible.value = false),
+    );
 
     function openNew(): void {
         editingId.value = null;

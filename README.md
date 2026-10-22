@@ -79,6 +79,12 @@ transaction remembers the row it came from - importing the same file twice adds 
 scheduled for a future date are left out, and because the backup carries no opening balance, new
 accounts start from zero.
 
+**The back button.** Every sheet and dialog puts an entry in the browser history while it is
+open, so back on Android (or the back gesture) takes one layer off at a time - out of a category
+inside the picker, then the picker, then the add screen - and only leaves the app once nothing
+is open. `composables/useBackClose.ts` holds the whole mechanism; an overlay joins in with one
+call.
+
 **Categories.** Two levels: `CategoryGroup` (with icon and colour) and `Subcategory`.
 The `kind` field keeps the expense and income trees independent.
 

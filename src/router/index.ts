@@ -1,5 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
+import { forgetOverlays } from "@/composables/useBackClose";
+
 /**
  * Hash mode is a deliberate choice: the built `dist` then opens both from the file system
  * and from any static host, with no rewrite rules to configure.
@@ -56,6 +58,17 @@ const router = createRouter({
         { path: "/:pathMatch(.*)*", redirect: "/overview" },
     ],
     scrollBehavior: () => ({ top: 0 }),
+});
+
+/**
+ * A page change makes the history entries of any open overlay unreachable - see
+ * `forgetOverlays`. Only a change of address counts: back out of an overlay re-runs the
+ * navigation to the very same route, and the layers still open below it keep their entries.
+ */
+router.beforeEach((to, from) => {
+    if (to.fullPath !== from.fullPath) {
+        forgetOverlays();
+    }
 });
 
 router.afterEach((to) => {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { computed, ref } from "vue";
 
+    import { useBackClose } from "@/composables/useBackClose";
     import { RECURRENCE_PRESETS, presetByKey } from "@/data/recurrence";
     import { useSettingsStore } from "@/stores/settings";
     import { formatDate, today, yesterday } from "@/utils/date";
@@ -26,6 +27,16 @@
 
     /** Whether the repeat sub-list is open inside the sheet. */
     const showRecurrence = ref(false);
+
+    // Back closes the repeat list first, then the sheet - one layer per press.
+    useBackClose(
+        () => props.open,
+        () => emit("close"),
+    );
+    useBackClose(
+        () => props.open && showRecurrence.value,
+        () => (showRecurrence.value = false),
+    );
     const dateInput = ref<HTMLInputElement | null>(null);
 
     const recurrenceLabel = computed(() => presetByKey(props.recurrence)?.label ?? "Do not repeat");

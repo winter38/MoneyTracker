@@ -2,6 +2,7 @@
     import type { CategoryKind } from "@/types/models";
     import AppIcon from "@/components/common/AppIcon.vue";
     import CategoryGrid from "@/components/transactions/CategoryGrid.vue";
+    import { useBackClose } from "@/composables/useBackClose";
     import { useAccountsStore } from "@/stores/accounts";
     import { useSettingsStore } from "@/stores/settings";
     import { iconTint } from "@/utils/color";
@@ -31,6 +32,11 @@
 
     const accounts = useAccountsStore();
     const settings = useSettingsStore();
+
+    useBackClose(
+        () => props.open,
+        () => emit("close"),
+    );
 </script>
 
 <template>

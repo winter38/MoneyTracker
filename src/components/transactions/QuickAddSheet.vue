@@ -8,6 +8,7 @@
     import NumPad from "@/components/transactions/NumPad.vue";
     import PickerSheet from "@/components/transactions/PickerSheet.vue";
     import { PLACEHOLDER_ICON } from "@/data/icons";
+    import { useBackClose } from "@/composables/useBackClose";
     import { presetByKey } from "@/data/recurrence";
     import { useAccountsStore } from "@/stores/accounts";
     import { useCategoriesStore } from "@/stores/categories";
@@ -179,6 +180,9 @@
     watch(visible, (open) => {
         document.body.style.overflow = open ? "hidden" : "";
     });
+
+    // Back on the phone puts the sheet away instead of leaving the app.
+    useBackClose(() => visible.value, close);
 
     /* ---------- Data for the header ---------- */
 
