@@ -103,15 +103,16 @@
     }
 
     /**
-     * The list lands filtered to this category and this period. The dates travel in the query
-     * rather than relying on the period store, so the link survives a reload.
+     * The list lands filtered to this category. Only the group travels in the query: the list
+     * already follows the month in the header, and pinning dates here would freeze it so the
+     * arrows up there would appear dead.
      */
     function showHeldTransactions(): void {
         const groupId = heldId.value;
         if (groupId === null) {
             return;
         }
-        openHeld("/transactions", { group: groupId, from: period.from, to: period.to });
+        openHeld("/transactions", { group: groupId });
     }
 
     /**

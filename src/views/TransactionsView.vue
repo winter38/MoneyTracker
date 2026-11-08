@@ -7,6 +7,7 @@
     import type { TxKind } from "@/types/models";
     import { useAccountsStore } from "@/stores/accounts";
     import { useCategoriesStore } from "@/stores/categories";
+    import { usePeriodStore } from "@/stores/period";
     import { useSettingsStore } from "@/stores/settings";
     import { useTransactionsStore } from "@/stores/transactions";
     import { useBreakpoint } from "@/composables/useBreakpoint";
@@ -16,6 +17,7 @@
 
     const accounts = useAccountsStore();
     const categories = useCategoriesStore();
+    const period = usePeriodStore();
     const settings = useSettingsStore();
     const transactions = useTransactionsStore();
 
@@ -30,21 +32,18 @@
     const route = useRoute();
 
     /**
-     * Arrived from holding a category tile: the group and the period come in the query, so the
-     * list opens already narrowed instead of making the user rebuild that in the filter panel.
+     * Arrived from holding a category tile: the group comes in the query, so the list opens
+     * already narrowed instead of making the user rebuild that in the filter panel. Only the
+     * group - the month stays with the header, so paging through months still works here.
      * Watched rather than read once, because the view is not rebuilt if it is already open.
      */
     watch(
         () => route.query,
         (query) => {
             const group = typeof query.group === "string" ? query.group : "";
-            if (group === "") {
-                return;
+            if (group !== "") {
+                filters.groupIds = [group];
             }
-            const from = typeof query.from === "string" ? query.from : "";
-            const to = typeof query.to === "string" ? query.to : "";
-            filters.groupIds = [group];
-            filters.range = from !== "" && to !== "" ? [from, to] : null;
         },
         { immediate: true },
     );
@@ -54,8 +53,11 @@
             kinds: filters.kinds,
             accountIds: filters.accountIds,
             groupIds: filters.groupIds,
-            dateFrom: filters.range?.[0],
-            dateTo: filters.range?.[1],
+            // The month in the header is the window every other screen works in, and the
+            // arrows there have to move this list too. A range picked in the filters is a
+            // deliberate override and wins.
+            dateFrom: filters.range?.[0] ?? period.from,
+            dateTo: filters.range?.[1] ?? period.to,
             search: filters.search,
         }),
     );
