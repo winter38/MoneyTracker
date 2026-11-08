@@ -1,4 +1,5 @@
 <script setup lang="ts">
+    import { onBeforeUnmount, onMounted, ref } from "vue";
     import { useRouter } from "vue-router";
 
     import { useAccountsStore } from "@/stores/accounts";
@@ -13,10 +14,40 @@
     const accounts = useAccountsStore();
     const period = usePeriodStore();
     const settings = useSettingsStore();
+
+    const root = ref<HTMLElement | null>(null);
+
+    /**
+     * The header is sticky, so whatever else wants to stick has to stop below it - the day
+     * headings in the transaction list do, and with `top: 0` they slid under here instead,
+     * leaving the rows to disappear behind the header and their round icons cut in half.
+     *
+     * The height is published as a variable rather than written down as a number: it moves
+     * with the font size and with how the period line wraps.
+     */
+    let observer: ResizeObserver | undefined;
+
+    onMounted(() => {
+        if (root.value === null) {
+            return;
+        }
+        const publish = (): void => {
+            document.documentElement.style.setProperty("--ft-header-height", `${root.value?.offsetHeight ?? 0}px`);
+        };
+        publish();
+        observer = new ResizeObserver(publish);
+        observer.observe(root.value);
+    });
+
+    onBeforeUnmount(() => {
+        observer?.disconnect();
+        // Manage and Settings drop the header; anything sticky then starts at the top again.
+        document.documentElement.style.removeProperty("--ft-header-height");
+    });
 </script>
 
 <template>
-    <header class="app-header">
+    <header ref="root" class="app-header">
         <div class="app-header__row">
             <button type="button" class="app-header__icon ft-icon-btn" aria-label="Manage" @click="router.push('/manage')">
                 <el-icon :size="20"><Menu /></el-icon>

@@ -119,7 +119,9 @@
         text-transform: uppercase;
         letter-spacing: 0.03em;
         position: sticky;
-        top: 0;
+        /* Below the app header, not under it: at 0 the heading hid behind it and the rows
+           scrolled away under the header with their icons sliced across. */
+        top: var(--ft-header-height, 0px);
         background: var(--ft-surface);
         z-index: 1;
     }
